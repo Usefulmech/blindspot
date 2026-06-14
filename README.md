@@ -27,7 +27,7 @@ The repository is structured with three main branches:
 
 ### 1. The Input Matrix
 A 5-step animated form for user input:
-- **Location**: Origin & Destination cities (powered by Teleport API).
+- **Location**: Origin & Destination cities (Optional — only if the decision involves relocation. Otherwise, can be omitted for general career/life decisions).
 - **The Decision**: Free-text description of the career/life move.
 - **Your Assumptions**: Expected monthly rent, savings rate, and confidence level.
 - **The Alternative**: A counterfactual scenario.

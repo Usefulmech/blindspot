@@ -8,9 +8,9 @@ To ensure the frontend and backend teams are aligned, here are the expected endp
   ```json
   {
     "session_id": "string",
-    "origin_city": "string",
-    "destination_city": "string",
     "decision_text": "string",
+    "origin_city": "string (optional, if relocation is involved)",
+    "destination_city": "string (optional, if relocation is involved)",
     "assumptions": {
       "expected_rent": 1500,
       "savings_rate": 20,
@@ -22,9 +22,9 @@ To ensure the frontend and backend teams are aligned, here are the expected endp
   ```
 - **Response**: Server-Sent Events (SSE) stream.
   - The backend should yield chunks formatted with specific event tags:
-    - `event: atlas\ndata: <chunk>\n\n`
-    - `event: vera\ndata: <chunk>\n\n`
-    - `event: done\ndata: { "score": 85, "grade": "B+", "timeline": [...], "blindspots": [...], "data_health": {"is_stale": false, "last_fetched": "2026-06-14T12:00:00Z", "fallback_used": false} }\n\n`
+    - `event: atlas\ndata: <chunk>\n\n` *(ATLAS streams optimistic points)*
+    - `event: vera\ndata: <chunk>\n\n` *(VERA streams realistic counterpoints)*
+    - `event: done\ndata: { "score": 85, "grade": "B+", "timeline": [...], "blindspots": [...], "data_health": {...} }\n\n` *(AXIS calculates the score and outputs the final payload)*
   - *Note: The `data_health` object is used by the frontend to render the Data Freshness Badge.*
 
 ### 2. `GET /api/decisions` (Fetch Past Sessions)
