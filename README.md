@@ -23,6 +23,27 @@ The repository is structured with three main branches:
 
 ---
 
+## ✨ Product Features
+
+### 1. The Input Matrix
+A 5-step animated form for user input:
+- **Location**: Origin & Destination cities (powered by Teleport API).
+- **The Decision**: Free-text description of the career/life move.
+- **Your Assumptions**: Expected monthly rent, savings rate, and confidence level.
+- **The Alternative**: A counterfactual scenario.
+- **Your Values**: Forced rank of Financial Security, Career Growth, Work-Life Balance, Geographic Roots.
+
+### 2. Live Debate Stream
+A two-column UI showing ATLAS (Optimist) and VERA (Realist) debating the decision in real-time. Every figure cites its source, and currency gaps appear in local terms first.
+
+### 3. 5-Year Parallel Reality Simulator
+A split-screen timeline showing the path taken vs. path not taken across 1, 3, and 5-year milestones.
+
+### 4. Blindspot Score Dashboard
+A radar chart scoring the decision across 4 axes: Financial Realism, Optimism Bias, Planning Fallacy Risk, and Regret Alignment. If the score is below 40, a Human Advisory Flag is triggered.
+
+---
+
 ## 🚀 Running the Project Locally
 
 ### 1. Backend Setup (FastAPI)
@@ -98,7 +119,14 @@ To ensure the frontend and backend teams are aligned, here are the expected endp
     "session_id": "string",
     "origin_city": "string",
     "destination_city": "string",
-    "decision_text": "string"
+    "decision_text": "string",
+    "assumptions": {
+      "expected_rent": 1500,
+      "savings_rate": 20,
+      "confidence": 85
+    },
+    "alternative_text": "string",
+    "values_rank": ["financial", "growth", "balance", "roots"]
   }
   ```
 - **Response**: Server-Sent Events (SSE) stream.
