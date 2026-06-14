@@ -27,6 +27,7 @@ The repository is structured with three main branches:
 
 ### 1. The Input Matrix
 A 5-step animated form for user input:
+- **Persona Context**: Specify if the user is a student, career changer, or professional.
 - **Location**: Origin & Destination cities (Optional — only if the decision involves relocation. Otherwise, can be omitted for general career/life decisions).
 - **The Decision**: Free-text description of the career/life move.
 - **Your Assumptions**: Expected monthly rent, savings rate, and confidence level.
@@ -40,7 +41,8 @@ A two-column UI showing ATLAS (Optimist) and VERA (Realist) debating the decisio
 A split-screen timeline showing the path taken vs. path not taken across 1, 3, and 5-year milestones.
 
 ### 4. Blindspot Score Dashboard
-A radar chart scoring the decision across 4 axes: Financial Realism, Optimism Bias, Planning Fallacy Risk, and Regret Alignment. If the score is below 40, a Human Advisory Flag is triggered.
+A radar chart scoring the decision across 4 axes: Financial Realism, Optimism Bias, Planning Fallacy Risk, and Regret Alignment. 
+- **Human Advisory Routing**: If the score falls below 40, a Human Advisory Flag is triggered, and the user is explicitly routed to the nearest career counselor, nonprofit office, or university center for human intervention.
 
 ---
 

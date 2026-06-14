@@ -9,6 +9,7 @@ To ensure the frontend and backend teams are aligned, here are the expected endp
   {
     "session_id": "string",
     "decision_text": "string",
+    "user_persona": "string (e.g., 'student', 'professional', 'freelancer')",
     "origin_city": "string (optional, if relocation is involved)",
     "destination_city": "string (optional, if relocation is involved)",
     "assumptions": {
@@ -24,7 +25,7 @@ To ensure the frontend and backend teams are aligned, here are the expected endp
   - The backend should yield chunks formatted with specific event tags:
     - `event: atlas\ndata: <chunk>\n\n` *(ATLAS streams optimistic points)*
     - `event: vera\ndata: <chunk>\n\n` *(VERA streams realistic counterpoints)*
-    - `event: done\ndata: { "score": 85, "grade": "B+", "timeline": [...], "blindspots": [...], "data_health": {...} }\n\n` *(AXIS calculates the score and outputs the final payload)*
+    - `event: done\ndata: { "score": 35, "grade": "F", "timeline": [...], "blindspots": [...], "advisory_action": {"flagged": true, "message": "High risk. Routing to nearest university career center / nonprofit office.", "office_contact": "..."}, "data_health": {...} }\n\n` *(AXIS outputs final payload, including routing info if score < 40)*
   - *Note: The `data_health` object is used by the frontend to render the Data Freshness Badge.*
 
 ### 2. `GET /api/decisions` (Fetch Past Sessions)
