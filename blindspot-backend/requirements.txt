@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+anthropic
+supabase
+httpx
+pydantic
+python-dotenv
+sse-starlette
