@@ -107,3 +107,6 @@ blindspot/
 └── README.md
 ```
 
+---
+
+**Frontend developer:** see [`blindspot-backend/FRONTEND_INTEGRATION.md`](blindspot-backend/FRONTEND_INTEGRATION.md) for all API endpoints, request/response shapes, and integration notes.
