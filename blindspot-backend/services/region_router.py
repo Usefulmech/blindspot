@@ -12,3 +12,4 @@ def route_region(origin_city: str, destination_city: str):
         "primary_source": "Numbeo",
         "secondary_sources": []
     }
+
