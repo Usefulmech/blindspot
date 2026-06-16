@@ -73,14 +73,35 @@ while (true) {
 | `vera` | Plain text chunk — append to VERA column as it arrives |
 | `done` | JSON string — see shape below |
 
-**`done` payload shape — AS OF TODAY (June 16)**
+**`done` payload shape**
 ```json
 {
-  "score": null,
-  "grade": null,
+  "score": 72,
+  "grade": "B",
   "axes": null,
-  "timeline": null,
-  "blindspots": null,
+  "timeline": {
+    "path_taken": {
+      "label": "Take the new role",
+      "milestones": [
+        {"year": 1, "trajectory_score": 60, "narrative": "Adjusting to higher CoL, savings dip short-term."},
+        {"year": 3, "trajectory_score": 75, "narrative": "Role unlocks promotion track, network cost recovering."},
+        {"year": 5, "trajectory_score": 85, "narrative": "Compounding career gain outweighs early friction."}
+      ]
+    },
+    "path_not_taken": {
+      "label": "Stay in current role",
+      "milestones": [
+        {"year": 1, "trajectory_score": 65, "narrative": "Stable, no relocation risk."},
+        {"year": 3, "trajectory_score": 60, "narrative": "Growth plateau without the title change."},
+        {"year": 5, "trajectory_score": 55, "narrative": "Market positioning lags peers who moved earlier."}
+      ]
+    }
+  },
+  "blindspots": [
+    "Network reset cost — 12-18 months to rebuild local professional relationships",
+    "Savings rate assumption may be optimistic given actual CoL delta",
+    "Equity/vesting cliff at current employer not accounted for in the timeline"
+  ],
   "advisory_action": { "flagged": false, "message": null, "office_contact": null },
   "data_health": {
     "status": "GREEN | YELLOW | RED",
@@ -97,9 +118,9 @@ while (true) {
 }
 ```
 
-> **`score`, `grade`, `axes`, `timeline`, `blindspots` are `null` on purpose** — AXIS (the scoring agent) ships tomorrow, June 17. Not a bug. Build the ScoreCard/timeline UI against these fields but treat `null` as "not yet computed," not an error.
-> `data_health` is real today — wire the freshness badge against it now.
-> Final shape (once AXIS ships): `advisory_action.flagged = true` when `score < 40`; `data_health.status = "RED"` forces the flag regardless of score.
+> `axes` is permanently `null` — no radar chart in this version.
+> `timeline.milestones[].trajectory_score` is a 0-100 narrative momentum score for the line chart — plot both tracks on the same axis (year 1/3/5).
+> `advisory_action.flagged = true` when `score < 40` or `data_health.status = "RED"` — show a human-advisor prompt when flagged.
 
 ---
 
@@ -151,8 +172,7 @@ function getSessionId() {
 | Endpoint | Status |
 |---|---|
 | `GET /api/health` | ✅ Live |
-| `POST /api/analyze` | ✅ Live — real ATLAS + VERA streaming via Cencori. `done.score/axes/timeline/blindspots` are `null` until AXIS ships |
+| `POST /api/analyze` | ✅ Live — real ATLAS + VERA streaming + AXIS scoring. Full `done` payload populated |
 | `GET /api/decisions` | ✅ Live (stub row) |
 | `GET /api/report/:uuid` | ✅ Live (stub) |
-| AXIS scoring (fills in `done` fields) | 🔜 June 17 |
 | `POST /api/rerun/:id` + Supabase persistence | 🔜 June 18 |
