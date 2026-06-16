@@ -23,7 +23,7 @@ PRIMARY_MODEL = "claude-sonnet-4-6"
 
 @lru_cache(maxsize=1)
 def get_cencori_client() -> anthropic.Anthropic:
-    """Return the cached Anthropic client pointed at the Cencori gateway.
+    """Return the cached sync Anthropic client pointed at the Cencori gateway.
 
     Raises RuntimeError if CENCORI_API_KEY is not configured.
     """
@@ -34,6 +34,25 @@ def get_cencori_client() -> anthropic.Anthropic:
         )
 
     return anthropic.Anthropic(
+        api_key=settings.cencori_api_key,
+        base_url=settings.cencori_base_url,
+    )
+
+
+@lru_cache(maxsize=1)
+def get_async_cencori_client() -> anthropic.AsyncAnthropic:
+    """Return the cached async Anthropic client pointed at the Cencori gateway.
+
+    Used by agent streaming code so SSE responses don't block the event loop.
+    Raises RuntimeError if CENCORI_API_KEY is not configured.
+    """
+    settings = get_settings()
+    if not settings.cencori_configured:
+        raise RuntimeError(
+            "CENCORI_API_KEY is not set. Add it to your .env to enable agent calls."
+        )
+
+    return anthropic.AsyncAnthropic(
         api_key=settings.cencori_api_key,
         base_url=settings.cencori_base_url,
     )
