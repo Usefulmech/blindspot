@@ -37,40 +37,69 @@ Send the user's decision, get back a live debate stream.
 }
 ```
 
+**`EventSource` won't work — this is a POST endpoint.** Use `fetch()` + `ReadableStream`:
+```js
+const res = await fetch('/api/analyze', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload),
+})
+const reader = res.body.getReader()
+const decoder = new TextDecoder()
+let buffer = ''
+
+while (true) {
+  const { done, value } = await reader.read()
+  if (done) break
+  buffer += decoder.decode(value, { stream: true })
+
+  // SSE frames are separated by blank lines: "event: atlas\ndata: chunk\n\n"
+  const frames = buffer.split('\n\n')
+  buffer = frames.pop() // keep incomplete frame for next read
+  for (const frame of frames) {
+    const event = frame.match(/^event: (.+)$/m)?.[1]
+    const data = frame.match(/^data: (.+)$/m)?.[1]
+    if (event === 'atlas') appendAtlas(data)
+    if (event === 'vera') appendVera(data)
+    if (event === 'done') handleDone(JSON.parse(data))
+  }
+}
+```
+
 **SSE events**
 | Event | Data |
 |---|---|
 | `atlas` | Plain text chunk — append to ATLAS column as it arrives |
 | `vera` | Plain text chunk — append to VERA column as it arrives |
-| `done` | JSON string — parse and render score/timeline/blindspots |
+| `done` | JSON string — see shape below |
 
-**`done` payload shape**
+**`done` payload shape — AS OF TODAY (June 16)**
 ```json
 {
-  "score": 62,
-  "grade": "B-",
-  "axes": {
-    "financial_realism": 58,
-    "optimism_bias": 65,
-    "planning_fallacy_risk": 55,
-    "regret_alignment": 70
-  },
-  "timeline": [
-    { "year": 1, "path_taken": "...", "path_not_taken": "..." },
-    { "year": 3, "path_taken": "...", "path_not_taken": "..." },
-    { "year": 5, "path_taken": "...", "path_not_taken": "..." }
-  ],
-  "blindspots": [
-    { "title": "...", "detail": "...", "source": "..." }
-  ],
+  "score": null,
+  "grade": null,
+  "axes": null,
+  "timeline": null,
+  "blindspots": null,
   "advisory_action": { "flagged": false, "message": null, "office_contact": null },
-  "data_health": { "status": "GREEN", "is_stale": false, "last_fetched": "...", "fallback_used": false, "warning": null },
-  "provider_used": "claude | gpt4o | gemini | stub"
+  "data_health": {
+    "status": "GREEN | YELLOW | RED",
+    "warning": "string | null",
+    "score_penalty": 0,
+    "adjusted_score": null,
+    "is_estimated": false,
+    "sources": {
+      "numbeo": { "status": "GREEN", "last_fetched": "ISO8601 | null", "age_days": 2 },
+      "fx": { "status": "GREEN", "last_fetched": "ISO8601 | null", "age_days": 0 }
+    }
+  },
+  "provider_used": "claude"
 }
 ```
 
-> `advisory_action.flagged = true` when `score < 40` — show human advisor banner.
-> `data_health.status = "RED"` forces the flag regardless of score.
+> **`score`, `grade`, `axes`, `timeline`, `blindspots` are `null` on purpose** — AXIS (the scoring agent) ships tomorrow, June 17. Not a bug. Build the ScoreCard/timeline UI against these fields but treat `null` as "not yet computed," not an error.
+> `data_health` is real today — wire the freshness badge against it now.
+> Final shape (once AXIS ships): `advisory_action.flagged = true` when `score < 40`; `data_health.status = "RED"` forces the flag regardless of score.
 
 ---
 
@@ -122,8 +151,8 @@ function getSessionId() {
 | Endpoint | Status |
 |---|---|
 | `GET /api/health` | ✅ Live |
-| `POST /api/analyze` | ✅ Live (stub SSE stream — real agents Day 3) |
+| `POST /api/analyze` | ✅ Live — real ATLAS + VERA streaming via Cencori. `done.score/axes/timeline/blindspots` are `null` until AXIS ships |
 | `GET /api/decisions` | ✅ Live (stub row) |
 | `GET /api/report/:uuid` | ✅ Live (stub) |
-| `POST /api/rerun/:id` | 🔜 June 18 |
-| Real agents + Supabase | 🔜 June 16–18 |
+| AXIS scoring (fills in `done` fields) | 🔜 June 17 |
+| `POST /api/rerun/:id` + Supabase persistence | 🔜 June 18 |
