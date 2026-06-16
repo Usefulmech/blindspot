@@ -19,3 +19,12 @@ CREATE TABLE decisions (
 
 -- Note: In Supabase, you might want to add Row Level Security (RLS) policies 
 -- to ensure session_id can only access its own data.
+
+CREATE TABLE api_cache (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    endpoint TEXT NOT NULL,
+    query_params JSONB NOT NULL,
+    response_data JSONB NOT NULL,
+    last_fetched_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(endpoint, query_params)
+);
