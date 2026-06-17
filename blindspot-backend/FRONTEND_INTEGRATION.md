@@ -127,3 +127,15 @@ function getSessionId() {
 | `GET /api/report/:uuid` | ✅ Live (stub) |
 | `POST /api/rerun/:id` | 🔜 June 18 |
 | Real agents + Supabase | 🔜 June 16–18 |
+
+---
+
+## Advisor Hub Integration (Planned)
+
+### `GET /api/advisors?location=<string>&type=<physical|online|student>`
+Returns a list of relevant counselors or advisors based on the user's persona and location.
+
+**Backend Implementation Notes:**
+- **Physical (`type=physical`):** Proxy a query to Google Places API (or Yelp Fusion) for "therapists", "career counselors", or "financial advisors" near the requested location.
+- **Online (`type=online`):** Partner/scrape directories (e.g., Psychology Today, BetterHelp) or use a static pool of remote-first services via Apify integrations.
+- **Student (`type=student`):** For student personas, query the College Scorecard API (US) or use a scoped Google Custom Search JSON API (`site:.edu "student counseling"`) to find relevant university counseling endpoints.

@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Import routers once they are created
-# from routers import analyze, decisions, share
+# Import routers
+from routers import analyze, decisions, share
 
 app = FastAPI(title="Blindspot API", version="1.0.0")
 
@@ -16,9 +16,9 @@ app.add_middleware(
 )
 
 # Register routers
-# app.include_router(analyze.router)
-# app.include_router(decisions.router)
-# app.include_router(share.router)
+app.include_router(analyze.router)
+app.include_router(decisions.router)
+app.include_router(share.router)
 
 @app.get("/")
 async def root():

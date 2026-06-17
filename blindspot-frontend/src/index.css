@@ -1,3 +1,63 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
+
+@config "../tailwind.config.js";
+
+@layer base {
+    body {
+        @apply bg-background text-on-background font-sans antialiased;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-display font-semibold tracking-tight;
+    }
+}
+
+/* ── Eye logo animations ─────────────────────────────────────────────────── */
+
+@keyframes eye-blink {
+    0%,
+    88%,
+    100% {
+        transform: scaleY(1);
+    }
+    94% {
+        transform: scaleY(0.06);
+    }
+}
+
+@keyframes pupil-look {
+    0%,
+    100% {
+        transform: translate(0px, 0px);
+    }
+    20% {
+        transform: translate(3px, -2px);
+    }
+    40% {
+        transform: translate(-3px, 1px);
+    }
+    60% {
+        transform: translate(2px, 3px);
+    }
+    80% {
+        transform: translate(-2px, -1px);
+    }
+}
+
+.eye-blink {
+    animation: eye-blink 4s ease-in-out infinite;
+    transform-origin: center;
+}
+
+.pupil-look {
+    /* transform-box:fill-box makes transform-origin relative to the element */
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pupil-look 8s ease-in-out infinite;
+}

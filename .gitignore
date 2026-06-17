@@ -15,3 +15,7 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Archives & Temp files
+*.zip
+*_local.md

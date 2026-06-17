@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign In | BlindSpot</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#111c2d",
+                        "outline-variant": "#bdc9c6",
+                        "surface-bright": "#f8f9ff",
+                        "on-secondary-container": "#586377",
+                        "surface-variant": "#d4e4fa",
+                        "on-background": "#0d1c2d",
+                        "secondary-container": "#d5e0f8",
+                        "primary-fixed-dim": "#80d5cb",
+                        "tertiary-fixed-dim": "#ffb3b6",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#0f766e",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#80d5cb",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#e9f1ff",
+                        "surface-dim": "#ccdbf2",
+                        "surface-tint": "#006a63",
+                        "surface-container": "#e5efff",
+                        "inverse-surface": "#233143",
+                        "secondary": "#545f73",
+                        "on-tertiary-fixed": "#40000c",
+                        "on-secondary-fixed-variant": "#3c475a",
+                        "on-primary-fixed": "#00201d",
+                        "surface-container-low": "#eef4ff",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "outline": "#6e7977",
+                        "on-tertiary-fixed-variant": "#920028",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#9cf2e8",
+                        "tertiary-container": "#d2093f",
+                        "error-container": "#ffdad6",
+                        "on-primary-container": "#a3faef",
+                        "on-primary-fixed-variant": "#00504a",
+                        "tertiary-fixed": "#ffdada",
+                        "tertiary": "#a6002f",
+                        "surface-container-high": "#dbe9ff",
+                        "secondary-fixed-dim": "#bcc7de",
+                        "on-surface-variant": "#3e4947",
+                        "background": "#f8f9ff",
+                        "surface": "#f8f9ff",
+                        "on-surface": "#0d1c2d",
+                        "primary": "#005c55",
+                        "on-tertiary-container": "#ffe4e4",
+                        "secondary-fixed": "#d8e3fb",
+                        "surface-container-highest": "#d4e4fa"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-lg": "32px",
+                        "stack-xs": "4px",
+                        "container-max": "1280px",
+                        "stack-sm": "8px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "stack-md": "16px",
+                        "margin-desktop": "32px"
+                    },
+                    "fontFamily": {
+                        "metadata": ["Inter"],
+                        "display-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-base": ["Inter"],
+                        "metric-label": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "metadata": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "metric-label": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .eye-animation {
+            animation: blink 4s infinite;
+        }
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+        .pupil-move {
+            animation: look 8s infinite ease-in-out;
+        }
+        @keyframes look {
+            0%, 100% { transform: translate(0, 0); }
+            20% { transform: translate(2px, -1px); }
+            40% { transform: translate(-2px, 1px); }
+            60% { transform: translate(1px, 2px); }
+            80% { transform: translate(-1px, -2px); }
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9ff;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid #E2E8F0;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex min-h-screen items-center justify-center p-4">
+<!-- Auth Container -->
+<main class="w-full max-w-[440px] flex flex-col items-center gap-stack-lg">
+<!-- Logo Section -->
+<div class="flex flex-col items-center gap-stack-sm text-center">
+<div class="w-16 h-16 bg-primary-container rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 relative overflow-hidden">
+<svg class="w-10 h-10 fill-white eye-animation" viewbox="0 0 100 100">
+<!-- Eye Path -->
+<path d="M10 50 C25 20, 75 20, 90 50 C75 80, 25 80, 10 50 Z"></path>
+<!-- Pupil -->
+<circle class="fill-primary-fixed pupil-move" cx="50" cy="50" r="12"></circle>
+<!-- Reflection -->
+<circle cx="55" cy="45" fill="white" opacity="0.6" r="4"></circle>
+</svg>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-on-surface tracking-tight">BlindSpot</h1>
+<p class="font-metadata text-metadata text-secondary">Decision Intelligence Engine</p>
+</div>
+</div>
+<!-- Card -->
+<div class="glass-card w-full rounded-2xl p-margin-mobile md:p-margin-desktop shadow-sm">
+<header class="mb-stack-lg">
+<h2 class="font-headline-md text-headline-md text-on-surface">Sign In</h2>
+<p class="font-body-base text-body-base text-secondary mt-1">Access your quantified projections.</p>
+</header>
+<form class="space-y-stack-md" onsubmit="event.preventDefault();">
+<!-- Email Field -->
+<div class="flex flex-col gap-stack-xs">
+<label class="font-metric-label text-metric-label text-on-surface-variant" for="email">Email Address</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px] transition-colors group-focus-within:text-primary">mail</span>
+<input class="w-full pl-10 pr-4 py-3 bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-body-base text-on-surface placeholder:text-outline/60" id="email" name="email" placeholder="name@company.com" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="flex flex-col gap-stack-xs">
+<div class="flex justify-between items-center">
+<label class="font-metric-label text-metric-label text-on-surface-variant" for="password">Password</label>
+<a class="font-metadata text-metadata text-primary hover:underline transition-all" href="#">Forgot Password?</a>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px] transition-colors group-focus-within:text-primary">lock</span>
+<input class="w-full pl-10 pr-4 py-3 bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-body-base text-on-surface placeholder:text-outline/60" id="password" name="password" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full bg-primary text-on-primary font-metric-label text-metric-label py-4 rounded-2xl hover:bg-primary-container active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4 shadow-sm" type="submit">
+                    Sign In to Dashboard
+                    <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</form>
+<!-- Divider -->
+<div class="relative my-stack-lg flex items-center">
+<div class="flex-grow border-t border-outline-variant"></div>
+<span class="mx-4 font-metadata text-metadata text-outline uppercase tracking-widest">or</span>
+<div class="flex-grow border-t border-outline-variant"></div>
+</div>
+<!-- Social Button -->
+<button class="w-full bg-white border border-outline-variant text-on-surface font-metric-label text-metric-label py-3 rounded-2xl flex items-center justify-center gap-3 hover:bg-surface-container-low transition-colors shadow-sm">
+<svg class="w-5 h-5" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+                Continue with Google
+            </button>
+</div>
+<!-- Footer Link -->
+<p class="font-body-base text-body-base text-secondary">
+            Don't have an account? 
+            <a class="text-primary font-bold hover:underline" href="#">Create Account</a>
+</p>
+<!-- Dynamic Decorative Elements -->
+<div class="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none opacity-40">
+<div class="absolute -top-[10%] -right-[5%] w-[400px] h-[400px] bg-primary-container/10 rounded-full blur-[100px]"></div>
+<div class="absolute -bottom-[10%] -left-[5%] w-[500px] h-[500px] bg-secondary-container/20 rounded-full blur-[120px]"></div>
+</div>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        // Simple input focus effects or validation placeholders could go here
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.querySelector('.material-symbols-outlined').style.transform = 'translateY(-50%) scale(1.1)';
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.querySelector('.material-symbols-outlined').style.transform = 'translateY(-50%) scale(1)';
+            });
+        });
+    </script>
+</body></html>

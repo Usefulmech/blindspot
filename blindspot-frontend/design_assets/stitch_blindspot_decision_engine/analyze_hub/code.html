@@ -1,0 +1,330 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BlindSpot | Decision Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Plus+Jakarta+Sans:wght@100..900&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#f8f9ff",
+                        "on-tertiary-fixed": "#40000c",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdada",
+                        "on-primary-fixed-variant": "#00504a",
+                        "primary-fixed-dim": "#80d5cb",
+                        "inverse-surface": "#233143",
+                        "on-secondary-container": "#586377",
+                        "primary-fixed": "#9cf2e8",
+                        "on-secondary-fixed-variant": "#3c475a",
+                        "surface-tint": "#006a63",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#0d1c2d",
+                        "secondary-fixed-dim": "#bcc7de",
+                        "tertiary-container": "#d2093f",
+                        "surface-container-high": "#dbe9ff",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f8f9ff",
+                        "surface": "#f8f9ff",
+                        "on-tertiary-container": "#ffe4e4",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#bdc9c6",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#eef4ff",
+                        "on-surface": "#0d1c2d",
+                        "secondary-fixed": "#d8e3fb",
+                        "on-secondary-fixed": "#111c2d",
+                        "secondary": "#545f73",
+                        "outline": "#6e7977",
+                        "surface-container": "#e5efff",
+                        "on-tertiary-fixed-variant": "#920028",
+                        "on-primary-fixed": "#00201d",
+                        "tertiary-fixed-dim": "#ffb3b6",
+                        "inverse-primary": "#80d5cb",
+                        "on-primary-container": "#a3faef",
+                        "primary-container": "#0f766e",
+                        "surface-container-highest": "#d4e4fa",
+                        "primary": "#005c55",
+                        "inverse-on-surface": "#e9f1ff",
+                        "tertiary": "#a6002f",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#d5e0f8",
+                        "on-surface-variant": "#3e4947",
+                        "surface-variant": "#d4e4fa",
+                        "surface-dim": "#ccdbf2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-xs": "4px",
+                        "stack-md": "16px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px",
+                        "gutter": "24px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Plus Jakarta Sans"],
+                        "metric-label": ["Plus Jakarta Sans"],
+                        "metadata": ["Inter"],
+                        "body-base": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "metric-label": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                        "metadata": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #E2E8F0;
+            border-radius: 5px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #0F766E;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+        .drag-item {
+            cursor: grab;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .drag-item:active {
+            cursor: grabbing;
+            transform: scale(1.02);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #E2E8F0;
+            border-radius: 10px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-base antialiased min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline h-16">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto h-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" style="font-size: 28px;">visibility</span>
+<span class="font-headline-md text-headline-md font-bold text-on-surface">BlindSpot</span>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-primary dark:text-primary-fixed-dim font-bold font-metadata text-metadata" href="#">Analyze</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low transition-colors px-3 py-1 rounded-lg font-metadata text-metadata" href="#">My Decisions</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low transition-colors px-3 py-1 rounded-lg font-metadata text-metadata" href="#">Advisor Hub</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors active:scale-95">notifications</button>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center border border-outline-variant">
+<span class="font-metadata text-metadata text-secondary font-bold">JD</span>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Progress Stepper -->
+<div class="mb-stack-lg max-w-2xl mx-auto">
+<div class="flex items-center justify-between mb-2">
+<span class="font-metadata text-metadata text-primary font-bold">Step 1: Variables Matrix</span>
+<span class="font-metadata text-metadata text-on-surface-variant">40% Complete</span>
+</div>
+<div class="w-full h-2 bg-[#E2E8F0] rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[40%] transition-all duration-700 ease-out"></div>
+</div>
+</div>
+<!-- Hero Input Section -->
+<section class="mb-stack-lg">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-stack-md text-center">Select your high-stakes move:</h1>
+<!-- Horizontal Pill Scroll -->
+<div class="flex overflow-x-auto gap-3 pb-4 px-2 no-scrollbar custom-scrollbar justify-start md:justify-center">
+<button class="whitespace-nowrap px-6 py-2.5 rounded-full border border-primary bg-primary-container text-on-primary-container font-metadata text-metadata shadow-sm transition-transform active:scale-95">The Relocation Blueprint</button>
+<button class="whitespace-nowrap px-6 py-2.5 rounded-full border border-outline-variant bg-surface hover:bg-surface-container-low text-on-surface-variant font-metadata text-metadata transition-all">The Career Escape Pod</button>
+<button class="whitespace-nowrap px-6 py-2.5 rounded-full border border-outline-variant bg-surface hover:bg-surface-container-low text-on-surface-variant font-metadata text-metadata transition-all">The Credentials Gamble</button>
+<button class="whitespace-nowrap px-6 py-2.5 rounded-full border border-outline-variant bg-surface hover:bg-surface-container-low text-on-surface-variant font-metadata text-metadata transition-all">Equity Exit Strategy</button>
+</div>
+</section>
+<!-- Main Workspace: Bento Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left: Inputs & Sliders -->
+<div class="lg:col-span-8 space-y-gutter">
+<!-- Natural Language Text Area -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-lg shadow-[0px_4px_20px_rgba(30,41,59,0.05)]">
+<label class="font-metric-label text-metric-label text-on-surface-variant mb-stack-sm block">Describe your intended destination or firm:</label>
+<textarea class="w-full h-32 bg-transparent border-none focus:ring-0 font-display-lg text-headline-md placeholder:text-outline-variant resize-none" placeholder="I am considering moving to Austin, TX to join a Series B Fintech startup as Head of Product..."></textarea>
+<div class="flex items-center gap-2 mt-stack-md text-primary">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+<p class="font-metadata text-metadata">BlindSpot is pulling live cost-of-living and market salary benchmarks for Austin, TX.</p>
+</div>
+</div>
+<!-- Sliders Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-lg shadow-[0px_4px_20px_rgba(30,41,59,0.05)] grid grid-cols-1 md:grid-cols-2 gap-stack-lg">
+<div class="space-y-stack-md">
+<div class="flex justify-between items-end">
+<label class="font-metric-label text-metric-label text-on-surface">Estimated Monthly Rent</label>
+<span class="font-headline-md text-headline-md text-primary">$2,850</span>
+</div>
+<input class="accent-primary-container" max="8000" min="1000" step="50" type="range" value="2850">
+<p class="font-metadata text-metadata text-on-surface-variant">Based on 1-bedroom median in target zip code.</p>
+</div>
+<div class="space-y-stack-md">
+<div class="flex justify-between items-end">
+<label class="font-metric-label text-metric-label text-on-surface">Expected Savings Rate</label>
+<span class="font-headline-md text-headline-md text-primary">22%</span>
+</div>
+<input class="accent-primary-container" max="100" min="0" step="1" type="range" value="22">
+<p class="font-metadata text-metadata text-on-surface-variant">Percentage of post-tax income allocated to capital.</p>
+</div>
+</div>
+<!-- The Alternative Input -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-lg shadow-[0px_4px_20px_rgba(30,41,59,0.05)]">
+<label class="font-metric-label text-metric-label text-on-surface mb-stack-sm block">The Alternative (Status Quo)</label>
+<div class="relative">
+<input class="w-full bg-white border border-outline-variant rounded-lg px-4 py-3 focus:border-primary-container focus:ring-1 focus:ring-primary-container font-body-base text-on-surface outline-none transition-all" type="text" value="Stay in current SF Role, 5% annual raise">
+<span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline-variant">edit</span>
+</div>
+<p class="mt-stack-sm font-metadata text-metadata text-on-surface-variant italic">BlindSpot compares your move against this baseline projection.</p>
+</div>
+</div>
+<!-- Right: Value Ranking & Actions -->
+<div class="lg:col-span-4 space-y-gutter">
+<!-- Values Drag and Drop -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-lg shadow-[0px_4px_20px_rgba(30,41,59,0.05)]">
+<h3 class="font-metric-label text-metric-label text-on-surface mb-stack-md flex items-center justify-between">
+                        Priority Hierarchy
+                        <span class="material-symbols-outlined text-outline-variant" title="Drag to reorder priorities">drag_indicator</span>
+</h3>
+<div class="space-y-stack-sm" id="values-stack">
+<div class="drag-item bg-white border border-outline-variant p-4 rounded-lg flex items-center gap-3 shadow-sm">
+<span class="w-6 h-6 rounded-full bg-primary-container text-white flex items-center justify-center font-metadata text-metadata">1</span>
+<span class="font-body-base font-semibold">Financial Security</span>
+</div>
+<div class="drag-item bg-white border border-outline-variant p-4 rounded-lg flex items-center gap-3 shadow-sm">
+<span class="w-6 h-6 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-metadata text-metadata">2</span>
+<span class="font-body-base font-semibold">Career Growth</span>
+</div>
+<div class="drag-item bg-white border border-outline-variant p-4 rounded-lg flex items-center gap-3 shadow-sm">
+<span class="w-6 h-6 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-metadata text-metadata">3</span>
+<span class="font-body-base font-semibold">Work-Life Balance</span>
+</div>
+<div class="drag-item bg-white border border-outline-variant p-4 rounded-lg flex items-center gap-3 shadow-sm">
+<span class="w-6 h-6 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-metadata text-metadata">4</span>
+<span class="font-body-base font-semibold">Geographic Roots</span>
+</div>
+</div>
+<p class="mt-4 font-metadata text-metadata text-on-surface-variant text-center">Rank variables by impact on your happiness.</p>
+</div>
+<!-- Call to Action Card -->
+<div class="bg-primary-container p-6 rounded-xl text-white space-y-stack-md shadow-lg transform transition-all hover:translate-y-[-4px]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<h4 class="font-headline-md text-headline-md font-bold text-on-primary-container">Ready to audit?</h4>
+</div>
+<p class="font-body-base text-on-primary-container opacity-90">We'll run 10,000 Monte Carlo simulations against your inputs to find the blind spots.</p>
+<button class="w-full bg-white text-primary-container font-headline-md py-4 rounded-lg font-bold hover:bg-on-primary-container hover:text-white transition-all active:scale-95 shadow-md flex items-center justify-center gap-2">
+                        Stress-Test My Assumptions
+                        <span class="material-symbols-outlined">trending_up</span>
+</button>
+</div>
+<!-- Secondary Graphic Placeholder -->
+<div class="relative h-48 rounded-xl overflow-hidden border border-outline-variant">
+<img alt="Decision visualization" class="w-full h-full object-cover grayscale brightness-50" data-alt="A sophisticated, high-end 3D data visualization featuring translucent geometric nodes connected by glowing teal lines against a deep charcoal background. The aesthetic is clean, corporate, and minimalist, echoing the BlindSpot brand identity. Soft ambient light illuminates the scene, creating a sense of clarity and empirical precision. The overall mood is focused and technologically advanced, representing complex decision-making processes simplified." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUf8zZBR9BLnASZ3L7U9DyioKgGBHx3vavqA_aevCngFsp0EwaOgbQ5Pejxe1ZcFph85fAkY7_C0NDhBa63fwpll_aAMuKpzhtNkg2GaJYwTE4RZynjgNh-xHWH0QVPWNOXa0H0zRZVnIi37QeOYBOQKmhcyxEe3OG5rTEWFgVvyTH5I1InBQSrfpu9WbJncJfRuUm75fsnFHkGef2ZTAxm15Jus-zsuJ44urJ082ed2M2au6_ik_nXSjqSMfIt0jJy_1kfBR3B6cG">
+<div class="absolute inset-0 flex items-center justify-center bg-black/20">
+<div class="text-center text-white px-4">
+<span class="material-symbols-outlined text-4xl mb-2">verified</span>
+<p class="font-metadata text-metadata font-bold uppercase tracking-widest">Empirical Integrity Engine</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 bg-surface dark:bg-surface-dim border-t border-outline-variant dark:border-outline px-gutter">
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-bold active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">query_stats</span>
+<span class="font-metadata text-metadata">Analyze</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant active:scale-90 transition-transform">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-metadata text-metadata">My Decisions</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant active:scale-90 transition-transform">
+<span class="material-symbols-outlined">support_agent</span>
+<span class="font-metadata text-metadata">Advisor Hub</span>
+</button>
+</nav>
+<script>
+        // Simple Micro-interaction for slider values
+        const sliders = document.querySelectorAll('input[type="range"]');
+        sliders.forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const valDisplay = e.target.parentElement.querySelector('span');
+                if (e.target.min == "1000") {
+                    valDisplay.textContent = `$${Number(e.target.value).toLocaleString()}`;
+                } else {
+                    valDisplay.textContent = `${e.target.value}%`;
+                }
+            });
+        });
+
+        // Toggle Pill Selections
+        const pills = document.querySelectorAll('.whitespace-nowrap');
+        pills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                pills.forEach(p => {
+                    p.classList.remove('bg-primary-container', 'text-on-primary-container', 'border-primary');
+                    p.classList.add('bg-surface', 'text-on-surface-variant', 'border-outline-variant');
+                });
+                pill.classList.add('bg-primary-container', 'text-on-primary-container', 'border-primary');
+                pill.classList.remove('bg-surface', 'text-on-surface-variant', 'border-outline-variant');
+            });
+        });
+    </script>
+
+
+</body></html>
