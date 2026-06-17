@@ -62,7 +62,7 @@ export function Dashboard() {
   // ── Empty state when no analysis has been submitted yet ──────────────────
   if (!payload) {
     return (
-      <div className="px-4 py-8 md:px-8 md:py-10 max-w-xl mx-auto space-y-6">
+      <div className="px-4 py-8 md:px-8 md:py-10 max-w-5xl mx-auto space-y-6">
         <div className="border-b border-outline-variant pb-5 text-center">
           <h1 className="text-2xl font-display font-bold text-on-surface tracking-tight">
             Analysis Dashboard
@@ -122,7 +122,7 @@ export function Dashboard() {
   const showAdvisory = result && (result.score < 40 || result.advisory_action?.flagged || result.data_health?.status === "RED");
 
   return (
-    <div className="px-4 py-8 md:px-8 md:py-10 max-w-xl mx-auto space-y-6">
+    <div className="px-4 py-8 md:px-8 md:py-10 max-w-5xl mx-auto space-y-6">
       {/* Page header */}
       <div className="flex items-center gap-4 border-b border-outline-variant pb-5">
         <button

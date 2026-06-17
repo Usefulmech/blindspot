@@ -28,7 +28,7 @@ export function Decisions() {
   }, []);
 
   return (
-    <div className="px-4 pt-2 pb-10 md:px-8 max-w-4xl mx-auto space-y-8">
+    <div className="px-4 pt-2 pb-10 md:px-8 max-w-5xl mx-auto space-y-8">
       {/* Page header */}
       <div className="flex items-start justify-between gap-4 border-b border-outline-variant pb-5">
         <div>

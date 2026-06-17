@@ -155,7 +155,7 @@ export function Analyze() {
 
   return (
     <div className="min-h-full bg-surface px-4 pt-2 pb-10 md:px-8">
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-6">
         {/* ── Page header ── */}
         <div>
           <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-widest mb-1">

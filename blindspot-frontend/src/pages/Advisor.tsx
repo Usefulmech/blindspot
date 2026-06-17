@@ -88,7 +88,7 @@ export function Advisor() {
   const recommendedId = config.order[0];
 
   return (
-    <div className="px-4 pt-2 pb-10 md:px-8 max-w-xl mx-auto space-y-6">
+    <div className="px-4 pt-2 pb-10 md:px-8 max-w-5xl mx-auto space-y-6">
       {/* Page header */}
       <div className="border-b border-outline-variant pb-5">
         <h1 className="text-2xl font-display font-bold text-on-surface tracking-tight">
