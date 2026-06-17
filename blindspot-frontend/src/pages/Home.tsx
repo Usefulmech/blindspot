@@ -119,9 +119,10 @@ export function Home() {
           </p>
 
           {/* CTA row */}
-          <div className="flex flex-col gap-3 max-w-sm w-full pt-1">
+          <div className="flex flex-row gap-3 w-full max-w-xl pt-1">
             <Button
               size="lg"
+              className="flex-1"
               fullWidth
               onClick={handleGetStarted}
               rightIcon={<ArrowRight />}
@@ -130,7 +131,7 @@ export function Home() {
             </Button>
 
             {isReturning && (
-              <Link to="/decisions" className="w-full">
+              <Link to="/decisions" className="flex-1">
                 <Button variant="secondary" size="lg" fullWidth>
                   View Past Decisions
                 </Button>
