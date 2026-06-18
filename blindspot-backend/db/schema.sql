@@ -13,12 +13,20 @@ CREATE TABLE decisions (
     timeline JSONB,
     blindspots JSONB,
     advisory_flag BOOLEAN,
+    data_health JSONB,
+    provider_used TEXT,
+    components JSONB,
     raw_data JSONB,
     share_uuid UUID DEFAULT gen_random_uuid()
 );
 
--- Note: In Supabase, you might want to add Row Level Security (RLS) policies 
+-- Note: In Supabase, you might want to add Row Level Security (RLS) policies
 -- to ensure session_id can only access its own data.
+
+-- Run these if the table already exists (upgrading from an earlier version):
+-- ALTER TABLE decisions ADD COLUMN IF NOT EXISTS data_health JSONB;
+-- ALTER TABLE decisions ADD COLUMN IF NOT EXISTS provider_used TEXT;
+-- ALTER TABLE decisions ADD COLUMN IF NOT EXISTS components JSONB;
 
 CREATE TABLE api_cache (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
