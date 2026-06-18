@@ -103,6 +103,13 @@ while (true) {
     "Equity/vesting cliff at current employer not accounted for in the timeline"
   ],
   "advisory_action": { "flagged": false, "message": null, "office_contact": null },
+  "components": {
+    "values_alignment": 74.0,
+    "debate_verdict": 68,
+    "estimation_score": 61.0,
+    "assumption_accuracy": 76.0,
+    "confidence_calibration": 55.0
+  },
   "data_health": {
     "status": "GREEN | YELLOW | RED",
     "warning": "string | null",
@@ -114,13 +121,16 @@ while (true) {
       "fx": { "status": "GREEN", "last_fetched": "ISO8601 | null", "age_days": 0 }
     }
   },
-  "provider_used": "claude"
+  "provider_used": "claude",
+  "share_uuid": "uuid-string"
 }
 ```
 
 > `axes` is permanently `null` — no radar chart in this version.
-> `timeline.milestones[].trajectory_score` is a 0-100 narrative momentum score for the line chart — plot both tracks on the same axis (year 1/3/5).
+> `timeline.milestones[].trajectory_score` is 0-100 — plot both tracks on the same line chart (year 1/3/5).
 > `advisory_action.flagged = true` when `score < 40` or `data_health.status = "RED"` — show a human-advisor prompt when flagged.
+> `components` is optional — use it to show a score breakdown ("why this score"), or ignore it.
+> `share_uuid` — build the share link as `/report/<share_uuid>`, hits `GET /api/report/<share_uuid>`.
 
 ---
 
@@ -145,13 +155,12 @@ while (true) {
 ---
 
 ### `GET /api/report/{share_uuid}` — Shareable report card
-Returns a single decision with full axes, timeline, blindspots, and data_health.
-Test UUID: `aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee`
+Returns a single decision row with full timeline, blindspots, components, and data_health. Returns `404` if not found.
 
 ---
 
-### `POST /api/rerun/{decision_id}` — Re-run (coming Day 5)
-Same SSE stream as `/api/analyze`. Returns `501` until June 18.
+### `POST /api/rerun/{decision_id}` — Re-run with fresh data
+Same SSE stream as `/api/analyze`. Loads the original request from the database and re-runs the full pipeline with fresh Numbeo + FX data.
 
 ---
 
@@ -172,7 +181,7 @@ function getSessionId() {
 | Endpoint | Status |
 |---|---|
 | `GET /api/health` | ✅ Live |
-| `POST /api/analyze` | ✅ Live — real ATLAS + VERA streaming + AXIS scoring. Full `done` payload populated |
-| `GET /api/decisions` | ✅ Live (stub row) |
-| `GET /api/report/:uuid` | ✅ Live (stub) |
-| `POST /api/rerun/:id` + Supabase persistence | 🔜 June 18 |
+| `POST /api/analyze` | ✅ Live — full pipeline: ATLAS → VERA → AXIS → score → persist |
+| `GET /api/decisions` | ✅ Live — real Supabase query |
+| `GET /api/report/:uuid` | ✅ Live — real Supabase query |
+| `POST /api/rerun/:id` | ✅ Live — re-runs full SSE pipeline with fresh data |
