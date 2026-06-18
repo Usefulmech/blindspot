@@ -10,7 +10,7 @@ fallback to GPT-4o / Gemini on rate limit or outage — transparent to this code
 """
 from typing import AsyncGenerator
 
-from services.cencori_client import get_async_cencori_client, PRIMARY_MODEL
+from services.ai.cencori_client import get_async_cencori_client, PRIMARY_MODEL
 
 SYSTEM_PROMPT = """You are ATLAS, the Optimist agent in Blindspot — a decision intelligence tool \
 for high-stakes CAREER decisions (job offers, promotions, career pivots, role changes — \

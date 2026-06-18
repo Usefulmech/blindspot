@@ -9,7 +9,7 @@ finish, then makes a single call and returns a parsed JSON object.
 """
 import json
 
-from services.cencori_client import get_async_cencori_client, PRIMARY_MODEL
+from services.ai.cencori_client import get_async_cencori_client, PRIMARY_MODEL
 
 SYSTEM_PROMPT = """You are AXIS, the Synthesizer in Blindspot — a decision intelligence \
 tool for high-stakes CAREER decisions.

@@ -13,7 +13,7 @@ from typing import Optional
 
 import httpx
 
-from services.cache_manager import CacheManager
+from services.external.cache_manager import CacheManager
 from services.config import get_settings
 
 NUMBEO_BASE_URL = "https://www.numbeo.com/api/city_prices"

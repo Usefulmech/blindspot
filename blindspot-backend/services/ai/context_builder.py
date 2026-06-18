@@ -11,9 +11,9 @@ import asyncio
 from typing import Optional
 
 from schemas import AnalyzeRequest
-from services.numbeo import fetch_col_data
-from services.fx import fetch_rates, convert
-from services.data_integrity import verify_freshness, handle_stale_source
+from services.external.numbeo import fetch_col_data
+from services.external.fx import fetch_rates, convert
+from services.scoring.data_integrity import verify_freshness, handle_stale_source
 
 
 async def build_context(request: AnalyzeRequest) -> dict:

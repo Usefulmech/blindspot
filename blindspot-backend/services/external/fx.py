@@ -15,7 +15,7 @@ from typing import Optional
 
 import httpx
 
-from services.cache_manager import CacheManager
+from services.external.cache_manager import CacheManager
 from services.config import get_settings
 
 FX_BASE_URL = "https://openexchangerates.org/api/latest.json"

@@ -7,12 +7,13 @@ Core route. Accepts user decision inputs and runs the full pipeline:
   3. Stream VERA (realist) via Cencori SSE
   4. Run AXIS (synthesizer) — reads full debate, returns structured JSON
   5. Compute Blindspot Score via score_calculator
-  6. Emit final done payload
+  6. Persist to Supabase
+  7. Emit final done payload
 
 SSE event format:
   event: atlas   — ATLAS text chunks (streamed live from Cencori)
   event: vera    — VERA text chunks (streamed live from Cencori)
-  event: done    — Final JSON payload (score, grade, timeline, blindspots, advisory_action, data_health)
+  event: done    — Final JSON payload (score, grade, timeline, blindspots, advisory_action, data_health, share_uuid)
 """
 import json
 
@@ -20,11 +21,12 @@ from fastapi import APIRouter
 from sse_starlette.sse import EventSourceResponse
 
 from schemas import AnalyzeRequest
-from services.context_builder import build_context
-from services.score_calculator import calculate_blindspot_score
+from services.ai.context_builder import build_context
+from services.scoring.score_calculator import calculate_blindspot_score
 from agents.atlas import stream_atlas
 from agents.vera import stream_vera
 from agents.axis import run_axis
+from db.decisions_store import save_decision
 
 router = APIRouter()
 
@@ -70,6 +72,10 @@ async def _analyze_stream(body: AnalyzeRequest):
         "provider_used": "claude",
     }
 
+    # Persist to Supabase — returns share_uuid if saved, None if DB unconfigured
+    share_uuid = save_decision(body, done_payload)
+    done_payload["share_uuid"] = share_uuid
+
     yield {"event": "done", "data": json.dumps(done_payload)}
 
 
@@ -82,6 +88,6 @@ async def analyze(body: AnalyzeRequest):
     Returns a Server-Sent Events stream:
       - event: atlas  → append to ATLAS column
       - event: vera   → append to VERA column
-      - event: done   → parse JSON for score, timeline, blindspots, advisory_action
+      - event: done   → parse JSON for score, timeline, blindspots, advisory_action, share_uuid
     """
     return EventSourceResponse(_analyze_stream(body))
