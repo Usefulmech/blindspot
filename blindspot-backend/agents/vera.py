@@ -5,12 +5,11 @@ Stress-tests the user's career decision against the same live data ATLAS saw.
 VERA attacks weak assumptions, planning fallacy, and underestimated costs —
 but only with verified numbers, never speculation dressed up as fact.
 
-Streams its response via the Cencori gateway (Claude Sonnet, with automatic
-fallback to GPT-4o / Gemini on rate limit or outage — transparent to this code).
+Streams word-by-word via Cencori → Gemini 2.5 Flash.
 """
 from typing import AsyncGenerator
 
-from services.ai.cencori_client import get_async_cencori_client, PRIMARY_MODEL
+from services.ai.cencori_client import async_stream_chat
 
 SYSTEM_PROMPT = """You are VERA, the Realist agent in Blindspot — a decision intelligence tool \
 for high-stakes CAREER decisions (job offers, promotions, career pivots, role changes — \
@@ -55,20 +54,10 @@ Make the realist's case — stress-test this career decision."""
 
 
 async def stream_vera(context: dict) -> AsyncGenerator[str, None]:
-    """
-    Stream VERA's response as text chunks.
-
-    Yields plain text fragments as they arrive from the model — caller wraps
-    each chunk in an SSE `event: vera` frame.
-    """
-    client = get_async_cencori_client()
+    """Stream VERA's response chunk by chunk via Cencori async streaming bridge."""
     user_message = _build_user_message(context)
-
-    async with client.messages.stream(
-        model=PRIMARY_MODEL,
-        max_tokens=1024,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_message}],
-    ) as stream:
-        async for text in stream.text_stream:
-            yield text
+    async for chunk in async_stream_chat([
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": user_message},
+    ]):
+        yield chunk

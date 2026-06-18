@@ -1,0 +1,10 @@
+{
+  "session_id": "test-session-001",
+  "decision_text": "I have a job offer in Dubai paying 40% more than my current salary in Kigali",
+  "user_persona": "professional",
+  "origin_city": "Kigali",
+  "destination_city": "Dubai",
+  "assumptions": {"expected_rent": 1500, "savings_rate": 20, "confidence": 75},
+  "alternative_text": "Stay in my current role and negotiate a raise",
+  "values_rank": ["financial", "growth", "balance", "roots"]
+}

@@ -12,9 +12,13 @@ app = FastAPI(title="Blindspot API", version="2.0.0")
 
 settings = get_settings()
 
+_cors_origins = ["http://localhost:5173", "http://localhost:3000"]
+if settings.frontend_url:
+    _cors_origins.append(settings.frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # add prod URL on deploy
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

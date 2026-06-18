@@ -34,6 +34,9 @@ class Settings:
         self.numbeo_api_key: str = os.getenv("NUMBEO_API_KEY", "").strip()
         self.openexchangerates_key: str = os.getenv("OPENEXCHANGERATES_KEY", "").strip()
 
+        # Frontend URL — added to CORS allow list (set this in prod .env)
+        self.frontend_url: str = os.getenv("FRONTEND_URL", "").strip()
+
     @property
     def cencori_configured(self) -> bool:
         return bool(self.cencori_api_key)

@@ -5,12 +5,11 @@ Finds genuine, data-grounded upsides in a career decision. ATLAS is not a
 cheerleader: it must cite only the live figures provided in context and is
 allowed to acknowledge when the data doesn't support optimism.
 
-Streams its response via the Cencori gateway (Claude Sonnet, with automatic
-fallback to GPT-4o / Gemini on rate limit or outage — transparent to this code).
+Streams word-by-word via Cencori → Gemini 2.5 Flash.
 """
 from typing import AsyncGenerator
 
-from services.ai.cencori_client import get_async_cencori_client, PRIMARY_MODEL
+from services.ai.cencori_client import async_stream_chat
 
 SYSTEM_PROMPT = """You are ATLAS, the Optimist agent in Blindspot — a decision intelligence tool \
 for high-stakes CAREER decisions (job offers, promotions, career pivots, role changes — \
@@ -53,20 +52,10 @@ Make the optimist's case for this career decision."""
 
 
 async def stream_atlas(context: dict) -> AsyncGenerator[str, None]:
-    """
-    Stream ATLAS's response as text chunks.
-
-    Yields plain text fragments as they arrive from the model — caller wraps
-    each chunk in an SSE `event: atlas` frame.
-    """
-    client = get_async_cencori_client()
+    """Stream ATLAS's response chunk by chunk via Cencori async streaming bridge."""
     user_message = _build_user_message(context)
-
-    async with client.messages.stream(
-        model=PRIMARY_MODEL,
-        max_tokens=1024,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_message}],
-    ) as stream:
-        async for text in stream.text_stream:
-            yield text
+    async for chunk in async_stream_chat([
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": user_message},
+    ]):
+        yield chunk

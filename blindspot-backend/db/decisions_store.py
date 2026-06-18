@@ -32,6 +32,7 @@ def save_decision(body, done_payload: dict) -> str | None:
             "axes": done_payload.get("axes"),
             "timeline": done_payload.get("timeline"),
             "blindspots": done_payload.get("blindspots"),
+            "components": done_payload.get("components"),
             "advisory_flag": done_payload.get("advisory_action", {}).get("flagged", False),
             "data_health": done_payload.get("data_health"),
             "provider_used": done_payload.get("provider_used"),

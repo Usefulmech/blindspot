@@ -17,6 +17,57 @@ Estimation Score — no component is treated as more important than another.
 
 ADVISORY_THRESHOLD = 40
 
+# Curated career advisory resources by region.
+# Keyed by lowercase city/country substrings — first match wins.
+_REGIONAL_ADVISORS = {
+    # East Africa
+    "kigali":   [{"name": "Rwanda Development Board Career Centre", "url": "https://rdb.rw"},
+                 {"name": "ALX Africa", "url": "https://alxafrica.com"}],
+    "nairobi":  [{"name": "Fuzu Career Coaching", "url": "https://fuzu.com"},
+                 {"name": "ALX Africa", "url": "https://alxafrica.com"}],
+    "kampala":  [{"name": "ALX Africa", "url": "https://alxafrica.com"}],
+    "accra":    [{"name": "Jobberman Career Advice", "url": "https://jobberman.com.gh"},
+                 {"name": "ALX Africa", "url": "https://alxafrica.com"}],
+    "lagos":    [{"name": "Jobberman Career Advice", "url": "https://jobberman.com.ng"},
+                 {"name": "ALX Africa", "url": "https://alxafrica.com"}],
+    # Middle East
+    "dubai":    [{"name": "GulfTalent Career Advice", "url": "https://gulftalent.com"},
+                 {"name": "Bayt.com Career Resources", "url": "https://bayt.com"}],
+    "abu dhabi":[{"name": "GulfTalent Career Advice", "url": "https://gulftalent.com"}],
+    "riyadh":   [{"name": "GulfTalent Career Advice", "url": "https://gulftalent.com"}],
+    "doha":     [{"name": "GulfTalent Career Advice", "url": "https://gulftalent.com"}],
+    # Europe
+    "london":   [{"name": "National Careers Service (UK)", "url": "https://nationalcareers.service.gov.uk"}],
+    "berlin":   [{"name": "Make it in Germany", "url": "https://make-it-in-germany.com"}],
+    "paris":    [{"name": "Pôle Emploi Career Guidance", "url": "https://www.pole-emploi.fr"}],
+    # North America
+    "toronto":  [{"name": "Employment Ontario", "url": "https://www.ontario.ca/page/employment-ontario"}],
+    "new york": [{"name": "NYC Career Services", "url": "https://www1.nyc.gov/site/dca/workers/workers.page"}],
+}
+
+# Always appended regardless of location
+_GLOBAL_ADVISORS = [
+    {"name": "TopMate — 1:1 Career Mentors", "url": "https://topmate.io"},
+    {"name": "LinkedIn Career Coaches", "url": "https://www.linkedin.com/services/career-development"},
+]
+
+
+def get_advisor_contacts(destination_city: str | None, origin_city: str | None) -> list:
+    """Return a curated list of career advisory resources for the user's context."""
+    contacts = []
+    for city in [destination_city, origin_city]:
+        if not city:
+            continue
+        city_lower = city.lower()
+        for key, advisors in _REGIONAL_ADVISORS.items():
+            if key in city_lower:
+                for a in advisors:
+                    if a not in contacts:
+                        contacts.append(a)
+                break
+    contacts += _GLOBAL_ADVISORS
+    return contacts
+
 RANK_WEIGHTS = [0.40, 0.30, 0.20, 0.10]  # 1st through 4th place in values_rank
 
 GRADE_BANDS = [
@@ -90,6 +141,8 @@ def calculate_blindspot_score(
     actual_rent: float | None,
     values_rank: list[str],
     data_health: dict,
+    destination_city: str | None = None,
+    origin_city: str | None = None,
 ) -> dict:
     """Top-level entry point — combine AXIS's judged components with the
     deterministic estimation score and the data-health penalty.
@@ -125,6 +178,6 @@ def calculate_blindspot_score(
                 "that we recommend speaking with a human advisor before proceeding."
                 if flagged else None
             ),
-            "office_contact": None,
+            "office_contact": get_advisor_contacts(destination_city, origin_city) if flagged else None,
         },
     }

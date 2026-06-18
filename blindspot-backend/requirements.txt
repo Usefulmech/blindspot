@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-anthropic
+cencori
 supabase
 httpx
 pydantic
