@@ -5,57 +5,74 @@ Finds genuine, data-grounded upsides in a career decision. ATLAS is not a
 cheerleader: it must cite only the live figures provided in context and is
 allowed to acknowledge when the data doesn't support optimism.
 
-Streams word-by-word via Cencori → Gemini 2.5 Flash.
+Participates in a multi-turn debate:
+  Turn 1 (opening)  — makes the initial optimist case
+  Turn 2 (counter)  — directly responds to VERA's rebuttal
 """
 from typing import AsyncGenerator
 
 from services.ai.cencori_client import async_stream_chat
 
-SYSTEM_PROMPT = """You are ATLAS, the Optimist agent in Blindspot — a decision intelligence tool \
-for high-stakes CAREER decisions (job offers, promotions, career pivots, role changes — \
-relocation is often a side effect of a career move, not the focus itself).
+_SYSTEM = """You are ATLAS, the Optimist agent in Blindspot — a decision intelligence tool \
+for high-stakes CAREER decisions.
 
-Your job: find the genuine, defensible upsides in the user's career decision. You are not a \
-cheerleader. You build your case ONLY from the live data provided to you below — cost of living \
-figures, currency conversions, and the user's own stated assumptions. You NEVER invent a number \
-that isn't in the data provided.
+Your job: find the genuine, defensible upsides in the user's career decision. You are NOT a \
+cheerleader. Build your case ONLY from the live data provided — never invent a number.
 
 Rules:
-1. Cite every figure you use with its source (e.g. "GetWhereNext shows..." or "based on your stated \
-savings rate of X%...").
-2. Focus on career trajectory: skill growth, compensation upside, title/scope progression, \
-market positioning, network effects — not just cost of living.
-3. If the data does not support an optimistic case on a specific point, say so plainly. Genuine \
-optimism, not denial.
-4. Address the user's stated "Alternative" scenario directly — explain why the proposed decision \
-may beat it, using their own values ranking if relevant.
-5. Keep your response to 3-5 tight paragraphs. No headers, no bullet lists — write as if you are \
-making a spoken case in a debate.
-6. Never give financial advice directly ("you should do X") — frame everything as "the data \
-suggests" or "this points toward."
+1. Cite every figure you use (e.g. "GetWhereNext shows..." or "your stated savings rate of X%...").
+2. Focus on career trajectory: skill growth, compensation upside, title/scope, market positioning.
+3. If data does not support optimism on a specific point, say so plainly.
+4. Address the user's "Alternative" scenario directly using their values ranking.
+5. Write as if you are speaking in a live debate — punchy, direct, no bullet lists or headers.
+6. Never give direct financial advice — frame as "the data suggests" or "this points toward."
 """
 
 
-def _build_user_message(context: dict) -> str:
-    user = context["user"]
-    return f"""DECISION: {user['decision_text']}
+def _format_history(debate_history: list[tuple[str, str]]) -> str:
+    lines = ["\n=== DEBATE SO FAR ==="]
+    for speaker, text in debate_history:
+        lines.append(f"\n[{speaker}]:\n{text}")
+    lines.append("=== END DEBATE ===")
+    return "\n".join(lines)
 
+
+def _build_message(context: dict, debate_history: list[tuple[str, str]]) -> str:
+    user = context["user"]
+    memory = context.get("memory_summary", "")
+    base = f"""DECISION: {user['decision_text']}
 PERSONA: {user['user_persona']}
-ALTERNATIVE BEING CONSIDERED: {user['alternative_text']}
-VALUES RANKING (most to least important): {', '.join(user['values_rank'])}
+ALTERNATIVE: {user['alternative_text']}
+VALUES RANKING: {', '.join(user['values_rank'])}
 USER ASSUMPTIONS: expected rent {user['assumptions']['expected_rent']}, \
 savings rate {user['assumptions']['savings_rate']}%, confidence {user['assumptions']['confidence']}%
 
 {context['sources_summary']}
+{memory}"""
 
-Make the optimist's case for this career decision."""
+    if not debate_history:
+        return (
+            base
+            + "\n\nMake the optimist's opening case in 2-3 tight paragraphs."
+            + ("\n\nIf the user's history above is relevant, reference it — e.g. whether this "
+               "decision builds on past ones or represents a pattern worth noting." if memory else "")
+        )
+
+    return (
+        base
+        + _format_history(debate_history)
+        + "\n\nVERA just challenged you. Counter her SPECIFIC points using the data above. "
+        "Don't repeat your opening — address exactly what she said. 1-2 paragraphs."
+    )
 
 
-async def stream_atlas(context: dict) -> AsyncGenerator[str, None]:
-    """Stream ATLAS's response chunk by chunk via Cencori async streaming bridge."""
-    user_message = _build_user_message(context)
+async def stream_atlas(
+    context: dict, debate_history: list[tuple[str, str]] | None = None
+) -> AsyncGenerator[str, None]:
+    """Stream ATLAS. Pass debate_history for counter-argument turn, omit for opening."""
+    message = _build_message(context, debate_history or [])
     async for chunk in async_stream_chat([
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": user_message},
+        {"role": "system", "content": _SYSTEM},
+        {"role": "user", "content": message},
     ]):
         yield chunk

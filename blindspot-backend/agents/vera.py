@@ -1,63 +1,87 @@
 """
 VERA — the Realist agent.
 
-Stress-tests the user's career decision against the same live data ATLAS saw.
-VERA attacks weak assumptions, planning fallacy, and underestimated costs —
+Stress-tests the user's career decision against live data.
+VERA attacks weak assumptions, planning fallacy, and optimism bias —
 but only with verified numbers, never speculation dressed up as fact.
 
-Streams word-by-word via Cencori → Gemini 2.5 Flash.
+Participates in a multi-turn debate:
+  Turn 1 (rebuttal) — reads ATLAS's opening and counters it directly
+  Turn 2 (closing)  — responds to ATLAS's counter, delivers final argument
 """
 from typing import AsyncGenerator
 
 from services.ai.cencori_client import async_stream_chat
 
-SYSTEM_PROMPT = """You are VERA, the Realist agent in Blindspot — a decision intelligence tool \
-for high-stakes CAREER decisions (job offers, promotions, career pivots, role changes — \
-relocation is often a side effect of a career move, not the focus itself).
+_SYSTEM = """You are VERA, the Realist agent in Blindspot — a decision intelligence tool \
+for high-stakes CAREER decisions.
 
-Your job: stress-test the user's career decision using ONLY the live data provided below. You \
-attack weak assumptions, planning fallacy, and optimism bias — but every challenge must be backed \
-by a cited figure. You NEVER invent a number that isn't in the data provided.
+Your job: stress-test the user's career decision using ONLY the live data provided. Attack \
+weak assumptions, planning fallacy, and optimism bias — but every challenge must be backed by \
+a cited figure. Never invent a number.
 
 Rules:
-1. Cite every figure you use with its source (e.g. "GetWhereNext shows..." or "your stated confidence \
-of X% is notably higher than typical for this kind of move").
-2. Focus on career risk: how solid is the new role really, does the comp gain survive cost-of-living \
-and tax changes, is the skill/title gain real or lateral, what is lost (network, momentum, equity) \
-by leaving the current path.
-3. Directly counter ATLAS's optimistic framing where the data supports it — name the specific \
-assumption you think is shaky and why.
-4. If the data genuinely supports the decision on a specific point, say so — you are a realist, \
-not a contrarian. Don't manufacture doubt where none is warranted.
-5. Address the user's stated "Alternative" scenario — explain where staying or choosing the \
-alternative may actually be the stronger move given their values ranking.
-6. Keep your response to 3-5 tight paragraphs. No headers, no bullet lists — write as if you are \
-making a spoken case in a debate.
-7. Never give financial advice directly ("you should do X") — frame everything as "the data \
-suggests" or "this raises the question of."
+1. Cite every figure (e.g. "GetWhereNext shows..." or "your stated confidence of X% is high given...").
+2. Focus on career risk: how solid is the new role, does the comp gain survive CoL and tax, \
+what is lost (network, momentum) by leaving.
+3. Directly rebut ATLAS's specific claims — name them, then show what the data actually says.
+4. If data genuinely supports a point ATLAS made, concede it briefly and move on.
+5. Write as if speaking in a live debate — punchy, direct, no bullet lists or headers.
+6. Never give direct financial advice — frame as "the data suggests" or "this raises the question of."
 """
 
 
-def _build_user_message(context: dict) -> str:
-    user = context["user"]
-    return f"""DECISION: {user['decision_text']}
+def _format_history(debate_history: list[tuple[str, str]]) -> str:
+    lines = ["\n=== DEBATE SO FAR ==="]
+    for speaker, text in debate_history:
+        lines.append(f"\n[{speaker}]:\n{text}")
+    lines.append("=== END DEBATE ===")
+    return "\n".join(lines)
 
+
+def _build_message(context: dict, debate_history: list[tuple[str, str]]) -> str:
+    user = context["user"]
+    memory = context.get("memory_summary", "")
+    base = f"""DECISION: {user['decision_text']}
 PERSONA: {user['user_persona']}
-ALTERNATIVE BEING CONSIDERED: {user['alternative_text']}
-VALUES RANKING (most to least important): {', '.join(user['values_rank'])}
+ALTERNATIVE: {user['alternative_text']}
+VALUES RANKING: {', '.join(user['values_rank'])}
 USER ASSUMPTIONS: expected rent {user['assumptions']['expected_rent']}, \
 savings rate {user['assumptions']['savings_rate']}%, confidence {user['assumptions']['confidence']}%
 
 {context['sources_summary']}
+{memory}"""
 
-Make the realist's case — stress-test this career decision."""
+    if len(debate_history) <= 1:
+        atlas_text = debate_history[0][1] if debate_history else ""
+        memory_instruction = (
+            "\nIf the user's decision history shows a repeating pattern (e.g. consistently "
+            "overconfident, repeatedly considering international moves), call it out explicitly."
+            if memory else ""
+        )
+        return (
+            base
+            + (f"\n\nATLAS just made this opening case:\n[ATLAS]:\n{atlas_text}\n" if atlas_text else "")
+            + "\nRebut ATLAS's SPECIFIC claims using the data above. "
+            "Name the exact points you disagree with. 2-3 tight paragraphs."
+            + memory_instruction
+        )
+
+    return (
+        base
+        + _format_history(debate_history)
+        + "\n\nATLAS just countered your rebuttal. Make your closing argument. "
+        "Add one final insight ATLAS hasn't addressed. Don't repeat yourself. 1-2 paragraphs."
+    )
 
 
-async def stream_vera(context: dict) -> AsyncGenerator[str, None]:
-    """Stream VERA's response chunk by chunk via Cencori async streaming bridge."""
-    user_message = _build_user_message(context)
+async def stream_vera(
+    context: dict, debate_history: list[tuple[str, str]] | None = None
+) -> AsyncGenerator[str, None]:
+    """Stream VERA. Pass debate_history (must include at least ATLAS's opening)."""
+    message = _build_message(context, debate_history or [])
     async for chunk in async_stream_chat([
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": user_message},
+        {"role": "system", "content": _SYSTEM},
+        {"role": "user", "content": message},
     ]):
         yield chunk

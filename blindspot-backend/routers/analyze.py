@@ -37,24 +37,54 @@ async def _analyze_stream(body: AnalyzeRequest):
         context = await build_context(body)
         print("✅ context built")
 
-        # Stream ATLAS — accumulate full text so AXIS can read the whole debate
-        atlas_chunks = []
-        print("▶ streaming ATLAS...")
-        async for chunk in stream_atlas(context):
-            atlas_chunks.append(chunk)
+        # Multi-turn debate: ATLAS opens → VERA rebuts → ATLAS counters → VERA closes
+        # Each agent receives the full transcript so far — genuine back-and-forth.
+        debate_history: list[tuple[str, str]] = []
+        atlas_turns: list[str] = []
+        vera_turns: list[str] = []
+
+        # Turn 1 — ATLAS opening
+        print("▶ ATLAS opening...")
+        chunks = []
+        async for chunk in stream_atlas(context, debate_history):
+            chunks.append(chunk)
             yield {"event": "atlas", "data": chunk}
-        print("✅ ATLAS done")
+        atlas_turns.append("".join(chunks))
+        debate_history.append(("ATLAS", atlas_turns[-1]))
+        print("✅ ATLAS opening done")
 
-        # Stream VERA — same accumulation pattern
-        vera_chunks = []
-        print("▶ streaming VERA...")
-        async for chunk in stream_vera(context):
-            vera_chunks.append(chunk)
+        # Turn 2 — VERA rebuttal
+        print("▶ VERA rebuttal...")
+        chunks = []
+        async for chunk in stream_vera(context, debate_history):
+            chunks.append(chunk)
             yield {"event": "vera", "data": chunk}
-        print("✅ VERA done")
+        vera_turns.append("".join(chunks))
+        debate_history.append(("VERA", vera_turns[-1]))
+        print("✅ VERA rebuttal done")
 
-        atlas_text = "".join(atlas_chunks)
-        vera_text = "".join(vera_chunks)
+        # Turn 3 — ATLAS counter
+        print("▶ ATLAS counter...")
+        chunks = []
+        async for chunk in stream_atlas(context, debate_history):
+            chunks.append(chunk)
+            yield {"event": "atlas", "data": chunk}
+        atlas_turns.append("".join(chunks))
+        debate_history.append(("ATLAS", atlas_turns[-1]))
+        print("✅ ATLAS counter done")
+
+        # Turn 4 — VERA closing
+        print("▶ VERA closing...")
+        chunks = []
+        async for chunk in stream_vera(context, debate_history):
+            chunks.append(chunk)
+            yield {"event": "vera", "data": chunk}
+        vera_turns.append("".join(chunks))
+        debate_history.append(("VERA", vera_turns[-1]))
+        print("✅ VERA closing done")
+
+        atlas_text = "\n\n".join(atlas_turns)
+        vera_text = "\n\n".join(vera_turns)
 
         # AXIS call 1: stream debate summary
         print("▶ AXIS summary...")
@@ -88,7 +118,7 @@ async def _analyze_stream(body: AnalyzeRequest):
             "advisory_action": score_block["advisory_action"],
             "components": score_block["components"],
             "data_health": context["data_health"],
-            "provider_used": "gemini",
+            "provider_used": "azure_openai",
         }
 
         # Persist and attach share_uuid so frontend can link to the report immediately

@@ -20,6 +20,7 @@ from services.ai.cencori_client import async_stream_chat, async_collect_chat
 
 def _debate_block(context: dict, atlas_text: str, vera_text: str) -> str:
     user = context["user"]
+    memory = context.get("memory_summary", "")
 
     return f"""DECISION: {user['decision_text']}
 PERSONA: {user['user_persona']}
@@ -29,7 +30,7 @@ USER ASSUMPTIONS: expected rent {user['assumptions']['expected_rent']}, \
 savings rate {user['assumptions']['savings_rate']}%, confidence {user['assumptions']['confidence']}%
 
 {context['sources_summary']}
-
+{memory}
 --- ATLAS argued ---
 {atlas_text}
 
@@ -72,6 +73,12 @@ _JSON_SYSTEM = """You are AXIS, a decision intelligence engine for high-stakes c
 Analyze the debate between ATLAS (Optimist) and VERA (Realist) and return ONLY a raw JSON object.
 No markdown. No backticks. No commentary. Start with { and end with }.
 All values must come strictly from the debate.
+
+If the user's DECISION HISTORY is provided, use it to enrich the timeline narratives:
+- Reference past decisions where relevant (e.g. "Having previously considered X, year 1 may feel...")
+- If the user has a pattern of similar moves, note it in the blindspots
+- Let past scores inform trajectory_score trends (a user who scored 61 on a similar past move
+  may face familiar risks at year 1)
 
 OUTPUT THIS EXACT STRUCTURE:
 {

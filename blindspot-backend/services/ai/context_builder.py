@@ -14,6 +14,7 @@ from schemas import AnalyzeRequest
 from services.external.getwherenext import fetch_col_data
 from services.external.fx import fetch_rates, convert
 from services.scoring.data_integrity import verify_freshness, handle_stale_source
+from db.decisions_store import get_decisions_for_session
 
 
 async def build_context(request: AnalyzeRequest) -> dict:
@@ -39,6 +40,11 @@ async def build_context(request: AnalyzeRequest) -> dict:
         fetch_col_data(origin) if origin else asyncio.sleep(0, result=None),
         fetch_rates(),
     )
+
+    # Fetch up to 3 past decisions for this user — used by agents for memory-grounded debate
+    past_decisions = get_decisions_for_session(request.session_id)
+    # Exclude decisions with no score (incomplete runs) and cap at 3
+    past_decisions = [d for d in past_decisions if d.get("score") is not None][:3]
 
     freshness = verify_freshness({
         "getwherenext": col_dest["last_fetched_at"] if col_dest else None,
@@ -69,6 +75,8 @@ async def build_context(request: AnalyzeRequest) -> dict:
         "local_costs": local_costs,
         "data_health": data_health,
         "sources_summary": _build_sources_summary(col_dest, col_origin, fx_data, local_costs),
+        "past_decisions": past_decisions,
+        "memory_summary": _build_memory_summary(past_decisions),
     }
 
 
@@ -159,4 +167,26 @@ def _build_sources_summary(col_dest, col_origin, fx_data, local_costs) -> str:
         )
 
     lines.append("\n=== END DATA ===")
+    return "\n".join(lines)
+
+
+def _build_memory_summary(past_decisions: list) -> str:
+    """Format past decisions as a memory block injected into every agent prompt."""
+    if not past_decisions:
+        return ""
+
+    lines = ["=== USER'S DECISION HISTORY (most recent first) ==="]
+    for i, d in enumerate(past_decisions, 1):
+        date = (d.get("created_at") or "")[:10]
+        route = ""
+        if d.get("origin_city") and d.get("destination_city"):
+            route = f" | Route: {d['origin_city']} → {d['destination_city']}"
+        blindspots = d.get("blindspots") or []
+        bs_str = "; ".join(blindspots[:2]) if blindspots else "none recorded"
+        lines.append(
+            f"\n{i}. [{date}] \"{d.get('decision_text', '')}\""
+            f"\n   Score: {d.get('score')}/100 ({d.get('grade')}){route}"
+            f"\n   Key blindspots: {bs_str}"
+        )
+    lines.append("\n=== END HISTORY ===")
     return "\n".join(lines)
