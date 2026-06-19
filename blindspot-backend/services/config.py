@@ -20,34 +20,42 @@ class Settings:
     """Snapshot of all runtime configuration."""
 
     def __init__(self) -> None:
-        # Cencori AI Gateway
-        self.cencori_api_key: str = os.getenv("CENCORI_API_KEY", "").strip()
-        self.cencori_base_url: str = os.getenv(
-            "CENCORI_BASE_URL", "https://api.cencori.com/v1"
-        ).strip()
+        # Azure OpenAI
+        # The .env may contain the full AI Foundry project path (.../api/projects/...)
+        # which is the management API, not the OpenAI completions API.
+        # We normalise to just the base origin so the OpenAI SDK builds the right URL.
+        _raw_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "").strip()
+        if _raw_endpoint:
+            from urllib.parse import urlparse
+            _parsed = urlparse(_raw_endpoint)
+            self.azure_openai_endpoint: str = f"{_parsed.scheme}://{_parsed.netloc}/"
+        else:
+            self.azure_openai_endpoint: str = ""
+        self.azure_openai_api_key: str = os.getenv("AZURE_OPENAI_API_KEY", "").strip()
+        self.azure_openai_model: str = os.getenv("Model_Deployed", "gpt-4o").strip()
 
         # Supabase
         self.supabase_url: str = os.getenv("SUPABASE_URL", "").strip()
         self.supabase_key: str = os.getenv("SUPABASE_KEY", "").strip()
 
         # External data APIs
-        self.numbeo_api_key: str = os.getenv("NUMBEO_API_KEY", "").strip()
         self.openexchangerates_key: str = os.getenv("OPENEXCHANGERATES_KEY", "").strip()
+        self.getwherenext_url: str = os.getenv("GETWHERENEXT_URL", "").strip()
 
         # Frontend URL — added to CORS allow list (set this in prod .env)
         self.frontend_url: str = os.getenv("FRONTEND_URL", "").strip()
 
     @property
-    def cencori_configured(self) -> bool:
-        return bool(self.cencori_api_key)
+    def azure_openai_configured(self) -> bool:
+        return bool(self.azure_openai_endpoint and self.azure_openai_api_key)
 
     @property
     def supabase_configured(self) -> bool:
         return bool(self.supabase_url and self.supabase_key)
 
     @property
-    def numbeo_configured(self) -> bool:
-        return bool(self.numbeo_api_key)
+    def getwherenext_configured(self) -> bool:
+        return True  # free API, no key required — always available
 
     @property
     def fx_configured(self) -> bool:

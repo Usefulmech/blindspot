@@ -1,7 +1,7 @@
 """
 Data Integrity Layer — checks whether external API data is fresh.
 
-If data from Numbeo or Open Exchange Rates is older than 30 days, we flag it
+If data from GetWhereNext or Open Exchange Rates is older than 30 days, we flag it
 and degrade gracefully: cached values are still used but the frontend is warned
 and the Blindspot Score is penalised.
 
@@ -22,14 +22,14 @@ def verify_freshness(sources: dict[str, str | None]) -> dict:
     Check the freshness of each data source by its last_fetched_at timestamp.
 
     Args:
-      sources: { "numbeo": "<ISO8601>" | None, "fx": "<ISO8601>" | None }
+      sources: { "getwherenext": "<ISO8601>" | None, "fx": "<ISO8601>" | None }
                Pass None for a source that could not be fetched at all (RED).
 
     Returns:
       {
         "overall": "GREEN" | "YELLOW" | "RED",
         "sources": {
-          "numbeo": { "status": "GREEN", "last_fetched": "...", "age_days": 2 },
+          "getwherenext": { "status": "GREEN", "last_fetched": "...", "age_days": 2 },
           "fx":     { "status": "RED",   "last_fetched": None,  "age_days": None }
         }
       }

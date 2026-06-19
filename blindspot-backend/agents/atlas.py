@@ -21,7 +21,7 @@ figures, currency conversions, and the user's own stated assumptions. You NEVER 
 that isn't in the data provided.
 
 Rules:
-1. Cite every figure you use with its source (e.g. "Numbeo shows..." or "based on your stated \
+1. Cite every figure you use with its source (e.g. "GetWhereNext shows..." or "based on your stated \
 savings rate of X%...").
 2. Focus on career trajectory: skill growth, compensation upside, title/scope progression, \
 market positioning, network effects — not just cost of living.

@@ -1,5 +1,5 @@
 """
-Supabase-backed cache for external API responses (Numbeo, FX).
+Supabase-backed cache for external API responses (GetWhereNext, FX).
 
 Reads/writes to the `api_cache` table. Callers supply an endpoint string and
 a query_params dict as the cache key; the response is stored as JSONB alongside

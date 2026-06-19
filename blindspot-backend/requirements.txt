@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-cencori
+openai
 supabase
 httpx
 pydantic

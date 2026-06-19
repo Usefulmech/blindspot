@@ -26,7 +26,7 @@ async def get_decisions(session_id: str):
 @router.post("/api/rerun/{decision_id}")
 async def rerun_decision(decision_id: str):
     """
-    Re-fetch fresh Numbeo + FX data for a saved decision and re-run all agents.
+    Re-fetch fresh GetWhereNext + FX data for a saved decision and re-run all agents.
 
     Loads the original request from `raw_data` in the decisions table, then
     runs the exact same SSE pipeline as POST /api/analyze with fresh live data.

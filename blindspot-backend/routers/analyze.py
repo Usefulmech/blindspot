@@ -2,7 +2,7 @@
 POST /api/analyze
 
 Core route. Accepts user decision inputs and runs the full pipeline:
-  1. Build agent context — fetch Numbeo + FX live data, run freshness check
+  1. Build agent context — fetch GetWhereNext + FX live data, run freshness check
   2. Stream ATLAS (optimist) via Cencori SSE
   3. Stream VERA (realist) via Cencori SSE
   4. Run AXIS (synthesizer) — structured JSON: debate verdict, values scores,

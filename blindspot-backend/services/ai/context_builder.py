@@ -1,7 +1,7 @@
 """
 Context Builder — assembles the full prompt context for ATLAS, VERA, and AXIS.
 
-Fetches live data from Numbeo and Open Exchange Rates concurrently, runs the
+Fetches live data from GetWhereNext and Open Exchange Rates concurrently, runs the
 data integrity check, then returns a single context dict every agent receives.
 
 Every financial figure includes its source and fetch timestamp — agents must
@@ -11,7 +11,7 @@ import asyncio
 from typing import Optional
 
 from schemas import AnalyzeRequest
-from services.external.numbeo import fetch_col_data
+from services.external.getwherenext import fetch_col_data
 from services.external.fx import fetch_rates, convert
 from services.scoring.data_integrity import verify_freshness, handle_stale_source
 
@@ -41,7 +41,7 @@ async def build_context(request: AnalyzeRequest) -> dict:
     )
 
     freshness = verify_freshness({
-        "numbeo": col_dest["last_fetched_at"] if col_dest else None,
+        "getwherenext": col_dest["last_fetched_at"] if col_dest else None,
         "fx": fx_data["last_fetched_at"] if fx_data else None,
     })
     data_health = handle_stale_source(freshness)
@@ -134,7 +134,7 @@ def _build_sources_summary(col_dest, col_origin, fx_data, local_costs) -> str:
         c = col_dest["currency"]
         lc = local_costs
         lines.append(
-            f"\nNumbeo [{col_dest['source']} · {col_dest['last_fetched_at'][:10]}] — {col_dest['city']}:"
+            f"\nGetWhereNext [{col_dest['source']} · {col_dest['last_fetched_at'][:10]}] — {col_dest['city']} ({col_dest.get('country', '')}):"
             f"\n  Rent (1BR city centre): {col_dest['monthly_rent_1br_city_centre']} USD = {lc.get('rent_1br_city_centre')} {c}"
             f"\n  Monthly groceries:      {col_dest['monthly_groceries']} USD = {lc.get('monthly_groceries')} {c}"
             f"\n  Monthly transport:      {col_dest['monthly_transport']} USD = {lc.get('monthly_transport')} {c}"
@@ -142,11 +142,11 @@ def _build_sources_summary(col_dest, col_origin, fx_data, local_costs) -> str:
             f"\n  Est. total monthly CoL: {lc.get('total_estimated_monthly')} {c}"
         )
     else:
-        lines.append("\nNumbeo (destination): unavailable — agents must not quote CoL figures.")
+        lines.append("\nGetWhereNext (destination): unavailable — agents must not quote CoL figures.")
 
     if col_origin:
         lines.append(
-            f"\nNumbeo [{col_origin['source']}] — {col_origin['city']} (origin):"
+            f"\nGetWhereNext [{col_origin['source']}] — {col_origin['city']} ({col_origin.get('country', '')}, origin):"
             f"\n  Rent (1BR): {col_origin['monthly_rent_1br_city_centre']} {col_origin['currency']}"
             f"\n  Groceries:  {col_origin['monthly_groceries']} {col_origin['currency']}"
             f"\n  Transport:  {col_origin['monthly_transport']} {col_origin['currency']}"

@@ -32,7 +32,7 @@ app.include_router(share.router)
 @app.get("/api/health")
 async def health():
     """
-    Returns API status + Cencori gateway health + Supabase connectivity.
+    Returns API status + Azure OpenAI health + Supabase connectivity.
     Useful for frontend to check if the backend is ready before submission.
     """
     return {
@@ -40,9 +40,9 @@ async def health():
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "version": "2.0.0",
         "services": {
-            "cencori_gateway": "configured" if cencori_available() else "not configured",
+            "azure_openai": "configured" if cencori_available() else "not configured",
             "supabase": "configured" if supabase_available() else "not configured",
-            "numbeo": "configured" if settings.numbeo_configured else "not configured",
+            "getwherenext": "configured" if settings.getwherenext_configured else "not configured",
             "open_exchange_rates": "configured" if settings.fx_configured else "not configured",
         },
     }

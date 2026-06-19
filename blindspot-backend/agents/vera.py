@@ -20,7 +20,7 @@ attack weak assumptions, planning fallacy, and optimism bias — but every chall
 by a cited figure. You NEVER invent a number that isn't in the data provided.
 
 Rules:
-1. Cite every figure you use with its source (e.g. "Numbeo shows..." or "your stated confidence \
+1. Cite every figure you use with its source (e.g. "GetWhereNext shows..." or "your stated confidence \
 of X% is notably higher than typical for this kind of move").
 2. Focus on career risk: how solid is the new role really, does the comp gain survive cost-of-living \
 and tax changes, is the skill/title gain real or lateral, what is lost (network, momentum, equity) \
