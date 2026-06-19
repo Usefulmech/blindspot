@@ -118,7 +118,7 @@ export function Decisions() {
                       {d.score}
                     </div>
                   </div>
-                  <Button variant="secondary" size="sm">
+                  <Button variant="secondary" size="sm" onClick={() => window.open(`/report/${d.share_uuid}`, '_blank')}>
                     View Report
                   </Button>
                 </div>

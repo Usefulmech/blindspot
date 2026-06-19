@@ -163,7 +163,7 @@ export function Advisor() {
 
                 {/* CTA */}
                 <div className="shrink-0 self-start sm:pt-1">
-                  <Button variant={a.ctaVariant} size="sm">
+                  <Button variant={a.ctaVariant} size="sm" onClick={() => alert(`Connecting you to ${a.title}...`)}>
                     {a.cta}
                   </Button>
                 </div>
@@ -172,29 +172,6 @@ export function Advisor() {
           );
         })}
       </div>
-
-      {/* Export CTA */}
-      <Card variant="default" className="bg-primary/10 border border-primary/20 relative overflow-hidden">
-        <Card.Decor className="w-64 h-64 bg-primary -top-16 -right-16" />
-        <div className="relative z-10 p-8 flex flex-col md:flex-row md:items-center gap-6">
-          <div className="flex-1">
-            <h2 className="font-display font-bold text-xl text-on-surface mb-2">
-              Export Decision Matrix
-            </h2>
-            <p className="text-sm text-on-surface-variant leading-relaxed">
-              Synthesise advisor feedback and algorithmic projections into a
-              single, board-ready audit document.
-            </p>
-          </div>
-          <Button
-            variant="primary"
-            size="lg"
-            className="shrink-0"
-          >
-            Download Report Card
-          </Button>
-        </div>
-      </Card>
     </div>
   );
 }

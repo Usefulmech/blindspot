@@ -5,6 +5,7 @@ import { Analyze } from "./pages/Analyze";
 import { Dashboard } from "./pages/Dashboard";
 import { Decisions } from "./pages/Decisions";
 import { Advisor } from "./pages/Advisor";
+import { Report } from "./pages/Report";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/decisions" element={<Decisions />} />
           <Route path="/advisor" element={<Advisor />} />
+          <Route path="/report/:uuid" element={<Report />} />
         </Route>
       </Routes>
     </BrowserRouter>

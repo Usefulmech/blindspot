@@ -10,6 +10,7 @@ export function Dashboard() {
 
   const [atlasText, setAtlasText] = useState("");
   const [veraText, setVeraText] = useState("");
+  const [axisText, setAxisText] = useState("");
   const [result, setResult] = useState<any>(null);
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +35,7 @@ export function Dashboard() {
           (event, data) => {
             if (event === "atlas") setAtlasText((prev) => prev + data + " ");
             else if (event === "vera") setVeraText((prev) => prev + data + " ");
+            else if (event === "axis") setAxisText((prev) => prev + data + " ");
             else if (event === "done") {
               setResult(JSON.parse(data));
               setIsProcessing(false);
@@ -107,17 +109,7 @@ export function Dashboard() {
     );
   }
 
-  // Calculate coordinates for dynamic SVG radar chart
-  const financial = result?.axes?.financial_realism ?? 50;
-  const optimism = result?.axes?.optimism_bias ?? 50;
-  const planning = result?.axes?.planning_fallacy_risk ?? 50;
-  const regret = result?.axes?.regret_alignment ?? 50;
-
-  // Center is 90, 90. Max radius from center to grid edge is 75 (15 to 90)
-  const yFin = 90 - 75 * (financial / 100);
-  const xOpt = 90 + 75 * (optimism / 100);
-  const yPlan = 90 + 75 * (planning / 100);
-  const xReg = 90 - 75 * (regret / 100);
+  // Radar chart removed (axes is null)
 
   const showAdvisory = result && (result.score < 40 || result.advisory_action?.flagged || result.data_health?.status === "RED");
 
@@ -160,9 +152,9 @@ export function Dashboard() {
             <div className={`h-1 flex-1 rounded transition-all duration-300 ${reconcileProgress > 80 ? 'bg-primary' : 'bg-surface-dim'}`}></div>
           </div>
 
-          <div className="border border-border-mock bg-white rounded-xl p-4 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-border-mock bg-white rounded-xl p-4">
             {/* Agent Atlas */}
-            <div className="space-y-2 border-b border-border-mock pb-4 last:border-0 last:pb-0">
+            <div className="space-y-2 md:border-r border-border-mock md:pr-4 pb-4 md:pb-0 border-b md:border-b-0">
               <div className="flex items-center gap-2">
                 <div className="w-[26px] h-[26px] rounded-full bg-agent-atlas flex items-center justify-center text-[11px] font-extrabold text-white">
                   A
@@ -182,21 +174,21 @@ export function Dashboard() {
             </div>
 
             {/* Agent Vera */}
-            <div className="space-y-2 border-b border-border-mock pb-4 last:border-0 last:pb-0">
+            <div className="space-y-2 md:pl-2">
               <div className="flex items-center gap-2">
                 <div className="w-[26px] h-[26px] rounded-full bg-agent-vera flex items-center justify-center text-[11px] font-extrabold text-white">
                   V
                 </div>
                 <span className="font-extrabold text-xs text-agent-vera tracking-wide">VERA — Realist</span>
               </div>
-              <p className="text-xs text-on-surface leading-relaxed font-medium">
+              <p className="text-xs text-white leading-relaxed font-medium">
                 {veraText ? (
-                  <>
+                  <span className="text-on-surface">
                     {veraText}
                     <span className="inline-block w-2 h-3.5 bg-on-surface animate-pulse ml-1 align-middle" />
-                  </>
+                  </span>
                 ) : (
-                  <span className="text-on-surface-variant italic">Waiting for Vera to reconcile rent index...</span>
+                  <span className="text-on-surface-variant italic">Waiting for Vera to reconcile...</span>
                 )}
               </p>
             </div>
@@ -208,8 +200,18 @@ export function Dashboard() {
               <div className="w-[26px] h-[26px] rounded-full bg-axis-gold flex items-center justify-center text-xs font-extrabold text-axis-navy">
                 Σ
               </div>
-              <span className="font-extrabold text-xs text-axis-gold uppercase tracking-wider">AXIS Reconciling...</span>
+              <span className="font-extrabold text-xs text-axis-gold uppercase tracking-wider">AXIS — The Judge</span>
             </div>
+            <p className="text-xs text-white/90 leading-relaxed font-medium">
+              {axisText ? (
+                <>
+                  {axisText}
+                  <span className="inline-block w-2 h-3.5 bg-white animate-pulse ml-1 align-middle" />
+                </>
+              ) : (
+                <span className="text-white/50 italic">Waiting for AXIS verdict...</span>
+              )}
+            </p>
             <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
               <div
                 className="h-full bg-axis-gold rounded-full transition-all duration-300"
@@ -241,39 +243,42 @@ export function Dashboard() {
 
           {/* Advisory banner warning */}
           {showAdvisory && (
-            <div className="bg-risk-bg border border-[#F3C5C2] rounded-xl p-4 flex gap-3 items-start shadow-sm animate-pulse">
-              <span className="text-risk font-extrabold text-base leading-none shrink-0">⚠</span>
-              <p className="text-xs font-bold text-red-900 leading-normal">
-                {result.advisory_action?.message || "Score below 40 in Financial Realism. We recommend speaking with a counselor before acting on this decision."}
-              </p>
+            <div className="bg-risk-bg border border-[#F3C5C2] rounded-xl p-4 flex flex-col gap-2 shadow-sm animate-pulse">
+              <div className="flex gap-3 items-start">
+                <span className="text-risk font-extrabold text-base leading-none shrink-0">⚠</span>
+                <p className="text-xs font-bold text-red-900 leading-normal">
+                  {result.advisory_action?.message || "Score below 40 in Financial Realism. We recommend speaking with a counselor before acting on this decision."}
+                </p>
+              </div>
+              {result.advisory_action?.office_contact && result.advisory_action.office_contact.length > 0 && (
+                <div className="pl-6 pt-2 border-t border-red-200 mt-2 space-y-1">
+                  <span className="text-[10px] font-bold text-red-800 uppercase tracking-widest">Recommended Advisors:</span>
+                  <div className="flex flex-col gap-1">
+                    {result.advisory_action.office_contact.map((contact: any, i: number) => (
+                      <a key={i} href={contact.url} target="_blank" rel="noopener noreferrer" className="text-xs text-red-700 underline hover:text-red-900">
+                        {contact.name}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Dynamic SVG Radar Chart */}
-          <div className="bg-white border border-border-mock rounded-[24px] p-5 flex flex-col items-center justify-center shadow-sm">
-            <svg width="180" height="180" viewBox="0 0 180 180" className="select-none">
-              {/* Outer grid */}
-              <polygon points="90,15 165,90 90,165 15,90" fill="none" stroke="#E1E7F5" strokeWidth="1"/>
-              {/* Inner grid */}
-              <polygon points="90,52.5 127.5,90 90,127.5 52.5,90" fill="none" stroke="#E1E7F5" strokeWidth="1"/>
-              {/* Axis lines */}
-              <line x1="90" y1="15" x2="90" y2="165" stroke="#E1E7F5" strokeWidth="1"/>
-              <line x1="15" y1="90" x2="165" y2="90" stroke="#E1E7F5" strokeWidth="1"/>
-              {/* Value plot area */}
-              <polygon
-                points={`90,${yFin} ${xOpt},90 90,${yPlan} ${xReg},90`}
-                fill="#0F766E"
-                fillOpacity="0.22"
-                stroke="#0F766E"
-                strokeWidth="2"
-              />
-              {/* Label labels */}
-              <text x="90" y="9" fontSize="9" fontWeight="800" fill="#5B6B85" textAnchor="middle">Financial</text>
-              <text x="170" y="93" fontSize="9" fontWeight="800" fill="#5B6B85" textAnchor="start">Optimism</text>
-              <text x="90" y="177" fontSize="9" fontWeight="800" fill="#5B6B85" textAnchor="middle">Planning</text>
-              <text x="10" y="93" fontSize="9" fontWeight="800" fill="#5B6B85" textAnchor="end">Regret</text>
-            </svg>
-          </div>
+          {/* Components Breakdown */}
+          {result.components && (
+            <div className="bg-white border border-border-mock rounded-xl p-4 space-y-3 shadow-sm">
+              <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest text-center">Score Breakdown</p>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                {Object.entries(result.components).map(([key, value]) => (
+                  <div key={key} className="flex justify-between border-b border-border-mock pb-1">
+                    <span className="text-on-surface-variant capitalize">{key.replace(/_/g, ' ')}</span>
+                    <span className="font-extrabold text-on-surface">{Number(value).toFixed(1)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Top Blindspot Card */}
           <div className="space-y-3">
@@ -297,7 +302,7 @@ export function Dashboard() {
                       Unmitigated Gap
                     </span>
                     <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-50 text-on-surface-variant border border-slate-100">
-                      {result.provider_used ? `simulated via ${result.provider_used}` : "verified data"}
+                      {result.provider_used ? "AI Simulated" : "Verified Data"}
                     </span>
                   </div>
                   <div className="text-[9.5px] text-outline font-semibold">
@@ -329,18 +334,18 @@ export function Dashboard() {
             </div>
 
             <div className="space-y-3">
-              {(result.timeline || []).map((step: any, idx: number) => {
-                const pathText = activeTimelineTab === "taken" ? step.path_taken : step.path_not_taken;
+              {(result.timeline?.[activeTimelineTab === "taken" ? "path_taken" : "path_not_taken"]?.milestones || []).map((step: any, idx: number) => {
                 return (
                   <div
                     key={idx}
                     className="bg-[#FFF8EF] border border-[#F0E2C9] rounded-xl p-4 space-y-1.5 shadow-sm"
                   >
-                    <div className="text-[10px] font-extrabold text-caution uppercase tracking-wider">
-                      YEAR {step.year} — {payload.destination_city || "Target Move"}
+                    <div className="flex justify-between items-center text-[10px] font-extrabold text-caution uppercase tracking-wider">
+                      <span>YEAR {step.year}</span>
+                      <span>Trajectory: {step.trajectory_score}</span>
                     </div>
                     <p className="text-xs text-on-surface font-medium leading-relaxed italic">
-                      "{pathText}"
+                      "{step.narrative}"
                     </p>
                   </div>
                 );
@@ -353,7 +358,7 @@ export function Dashboard() {
             <Button
               fullWidth
               size="lg"
-              onClick={() => navigate("/decisions")}
+              onClick={() => window.open(`/report/${result.share_uuid || ''}`, '_blank')}
             >
               ↗ Share Report Card
             </Button>
