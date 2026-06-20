@@ -17,10 +17,11 @@ SSE event format:
 """
 import json
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Header
 from sse_starlette.sse import EventSourceResponse
 
 from schemas import AnalyzeRequest
+from services.auth import resolve_user_id
 from services.ai.context_builder import build_context
 from services.scoring.score_calculator import calculate_blindspot_score
 from agents.atlas import stream_atlas
@@ -135,7 +136,7 @@ async def _analyze_stream(body: AnalyzeRequest):
 
 
 @router.post("/api/analyze")
-async def analyze(body: AnalyzeRequest):
+async def analyze(body: AnalyzeRequest, authorization: str | None = Header(default=None)):
     """
     Stream the ATLAS + VERA debate for a given career decision, then emit a
     scored done payload once AXIS synthesizes the result.
@@ -143,4 +144,6 @@ async def analyze(body: AnalyzeRequest):
     Frontend must use fetch() + ReadableStream (POST body required — EventSource
     is GET-only and won't work here).
     """
+    user_id = await resolve_user_id(authorization, body.session_id)
+    body.session_id = user_id
     return EventSourceResponse(_analyze_stream(body))

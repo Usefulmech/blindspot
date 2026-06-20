@@ -2,25 +2,25 @@
 GET  /api/decisions           — fetch all past analyses for a session
 POST /api/rerun/{decision_id} — re-fetch live data and re-run agents on a saved decision
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from sse_starlette.sse import EventSourceResponse
 
 from schemas import AnalyzeRequest
 from db.decisions_store import get_decisions_for_session, get_decision_by_id
 from routers.analyze import _analyze_stream
+from services.auth import resolve_user_id
 
 router = APIRouter()
 
 
 @router.get("/api/decisions")
-async def get_decisions(session_id: str):
+async def get_decisions(session_id: str = "", authorization: str | None = Header(default=None)):
     """
-    Return all past analyses for a user session, newest first.
-
-    Query parameter: ?session_id=<string>
-    Returns empty array if Supabase is unconfigured or session has no history.
+    Return all past analyses for a user, newest first.
+    Prefers the authenticated user_id from the JWT over the session_id query param.
     """
-    return get_decisions_for_session(session_id)
+    user_id = await resolve_user_id(authorization, session_id)
+    return get_decisions_for_session(user_id)
 
 
 @router.post("/api/rerun/{decision_id}")
