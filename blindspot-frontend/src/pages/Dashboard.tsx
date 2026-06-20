@@ -144,84 +144,112 @@ export function Dashboard() {
 
       {/* Live agent debate stream panel */}
       {(isProcessing || atlasText) && (
-        <div className="space-y-5">
-          <div className="flex gap-1.5">
-            <div className="h-1 flex-1 rounded bg-primary"></div>
-            <div className="h-1 flex-1 rounded bg-primary"></div>
-            <div className="h-1 flex-1 rounded bg-primary"></div>
-            <div className={`h-1 flex-1 rounded transition-all duration-300 ${reconcileProgress > 50 ? 'bg-primary' : 'bg-surface-dim'}`}></div>
-            <div className={`h-1 flex-1 rounded transition-all duration-300 ${reconcileProgress > 80 ? 'bg-primary' : 'bg-surface-dim'}`}></div>
+        <div className="relative rounded-[24px] overflow-hidden bg-[#0d1526] shadow-2xl border border-[#1e2a44] p-6 sm:p-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8 border-b border-[#1e2a44] pb-4">
+             <div className="flex items-center gap-3">
+               <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]"></div>
+               <span className="text-white/90 text-xs font-bold tracking-[0.2em] uppercase">Live Neural Debate</span>
+             </div>
+             <div className="text-white/40 text-[10px] font-mono tracking-widest hidden sm:flex gap-3">
+               <span>LATENCY: 14ms</span>
+               <span>MODELS: OPT-7B / RM-4B</span>
+             </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+            {/* VS Badge */}
+            <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-[#0d1526] rounded-full border-2 border-[#1e2a44] items-center justify-center z-10 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+               <span className="text-white/80 text-[10px] font-black italic">VS</span>
+            </div>
+
+            {/* ATLAS */}
+            <div className="space-y-4 relative z-0">
+               <div className="flex items-center gap-3">
+                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2F9E76] to-[#1a6148] flex items-center justify-center shadow-[0_0_15px_rgba(47,158,118,0.4)]">
+                   <span className="text-white font-extrabold text-sm">A</span>
+                 </div>
+                 <div>
+                   <div className="text-[#2F9E76] text-sm font-extrabold tracking-wide">ATLAS</div>
+                   <div className="text-white/50 text-[10px] font-mono tracking-wider">OPTIMIZATION MODEL</div>
+                 </div>
+               </div>
+               <div className="bg-[#152036] rounded-xl p-5 border border-[#1e2a44] min-h-[160px] relative overflow-hidden transition-all duration-500 hover:border-[#2F9E76]/50">
+                 <div className="absolute inset-0 bg-gradient-to-b from-[#2F9E76]/5 to-transparent opacity-50"></div>
+                 <p className="text-sm text-slate-200 leading-relaxed font-medium relative z-10">
+                   {atlasText ? (
+                     <>
+                       {atlasText}
+                       {isProcessing && <span className="inline-block w-1.5 h-4 bg-[#2F9E76] animate-pulse ml-1 align-middle shadow-[0_0_8px_rgba(47,158,118,1)]" />}
+                     </>
+                   ) : (
+                     <span className="text-slate-500 italic">Synthesizing optimal trajectory...</span>
+                   )}
+                 </p>
+               </div>
+            </div>
+
+            {/* VERA */}
+            <div className="space-y-4 relative z-0">
+               <div className="flex items-center gap-3 md:flex-row-reverse md:text-right">
+                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C97B3D] to-[#8a5226] flex items-center justify-center shadow-[0_0_15px_rgba(201,123,61,0.4)]">
+                   <span className="text-white font-extrabold text-sm">V</span>
+                 </div>
+                 <div>
+                   <div className="text-[#C97B3D] text-sm font-extrabold tracking-wide">VERA</div>
+                   <div className="text-white/50 text-[10px] font-mono tracking-wider">RISK MITIGATION MODEL</div>
+                 </div>
+               </div>
+               <div className="bg-[#152036] rounded-xl p-5 border border-[#1e2a44] min-h-[160px] relative overflow-hidden transition-all duration-500 hover:border-[#C97B3D]/50">
+                 <div className="absolute inset-0 bg-gradient-to-b from-[#C97B3D]/5 to-transparent opacity-50"></div>
+                 <p className="text-sm text-slate-200 leading-relaxed font-medium relative z-10">
+                   {veraText ? (
+                     <>
+                       <span className="text-white/90">{veraText}</span>
+                       {isProcessing && <span className="inline-block w-1.5 h-4 bg-[#C97B3D] animate-pulse ml-1 align-middle shadow-[0_0_8px_rgba(201,123,61,1)]" />}
+                     </>
+                   ) : (
+                     <span className="text-slate-500 italic">Simulating downside risk...</span>
+                   )}
+                 </p>
+               </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-border-mock bg-white rounded-xl p-4">
-            {/* Agent Atlas */}
-            <div className="space-y-2 md:border-r border-border-mock md:pr-4 pb-4 md:pb-0 border-b md:border-b-0">
-              <div className="flex items-center gap-2">
-                <div className="w-[26px] h-[26px] rounded-full bg-agent-atlas flex items-center justify-center text-[11px] font-extrabold text-white">
-                  A
-                </div>
-                <span className="font-extrabold text-xs text-agent-atlas tracking-wide">ATLAS — Optimist</span>
-              </div>
-              <p className="text-xs text-on-surface leading-relaxed font-medium">
-                {atlasText ? (
-                  <>
-                    {atlasText}
-                    <span className="inline-block w-2 h-3.5 bg-on-surface animate-pulse ml-1 align-middle" />
-                  </>
-                ) : (
-                  <span className="text-on-surface-variant italic">Waiting for Atlas to structure analysis...</span>
-                )}
-              </p>
-            </div>
-
-            {/* Agent Vera */}
-            <div className="space-y-2 md:pl-2">
-              <div className="flex items-center gap-2">
-                <div className="w-[26px] h-[26px] rounded-full bg-agent-vera flex items-center justify-center text-[11px] font-extrabold text-white">
-                  V
-                </div>
-                <span className="font-extrabold text-xs text-agent-vera tracking-wide">VERA — Realist</span>
-              </div>
-              <p className="text-xs text-white leading-relaxed font-medium">
-                {veraText ? (
-                  <span className="text-on-surface">
-                    {veraText}
-                    <span className="inline-block w-2 h-3.5 bg-on-surface animate-pulse ml-1 align-middle" />
-                  </span>
-                ) : (
-                  <span className="text-on-surface-variant italic">Waiting for Vera to reconcile...</span>
-                )}
-              </p>
-            </div>
-          </div>
-
-          {/* Reconciler panel */}
-          <div className="bg-axis-navy rounded-xl p-4 text-white space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-[26px] h-[26px] rounded-full bg-axis-gold flex items-center justify-center text-xs font-extrabold text-axis-navy">
-                Σ
-              </div>
-              <span className="font-extrabold text-xs text-axis-gold uppercase tracking-wider">AXIS — The Judge</span>
-            </div>
-            <p className="text-xs text-white/90 leading-relaxed font-medium">
-              {axisText ? (
-                <>
-                  {axisText}
-                  <span className="inline-block w-2 h-3.5 bg-white animate-pulse ml-1 align-middle" />
-                </>
-              ) : (
-                <span className="text-white/50 italic">Waiting for AXIS verdict...</span>
-              )}
-            </p>
-            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-axis-gold rounded-full transition-all duration-300"
-                style={{ width: `${reconcileProgress}%` }}
-              />
-            </div>
-            <div className="text-[10px] font-semibold text-white/80">
-              {isProcessing ? `${reconcileProgress}% — computing Blindspot Score™` : `100% — Analysis Complete`}
-            </div>
+          {/* AXIS JUDGE */}
+          <div className="mt-8 pt-6 border-t border-[#1e2a44]">
+             <div className="flex flex-col md:flex-row md:items-center gap-6">
+               <div className="flex-1 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#C9A227] to-[#8a6e16] flex items-center justify-center shadow-[0_0_10px_rgba(201,162,39,0.4)] text-slate-900 font-extrabold text-[10px]">
+                      Σ
+                    </div>
+                    <span className="text-[#C9A227] text-xs font-extrabold tracking-widest uppercase">Axis Reconciliation</span>
+                  </div>
+                  <p className="text-sm text-white/80 leading-relaxed font-medium">
+                    {axisText ? (
+                      <>
+                        {axisText}
+                        {isProcessing && <span className="inline-block w-1.5 h-3 bg-[#C9A227] animate-pulse ml-1 align-middle" />}
+                      </>
+                    ) : (
+                      <span className="text-slate-600 italic">Waiting for agents to conclude arguments...</span>
+                    )}
+                  </p>
+               </div>
+               <div className="w-full md:w-48 shrink-0 flex flex-col gap-2 bg-[#152036] p-4 rounded-xl border border-[#1e2a44]">
+                  <div className="flex justify-between items-end">
+                     <span className="text-[#C9A227] text-[10px] font-bold tracking-widest">CONFIDENCE</span>
+                     <span className="text-white font-mono text-xs">{isProcessing ? reconcileProgress : 100}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-[#0d1526] rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#C9A227]/50 to-[#C9A227] rounded-full transition-all duration-300"
+                      style={{ width: `${isProcessing ? reconcileProgress : 100}%` }}
+                    />
+                  </div>
+               </div>
+             </div>
           </div>
         </div>
       )}
