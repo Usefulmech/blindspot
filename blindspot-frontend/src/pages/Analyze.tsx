@@ -94,6 +94,15 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+// ── Values ────────────────────────────────────────────────────────────────
+
+const VALUES = [
+  { key: "financial", label: "Financial Security", desc: "Salary, savings, long-term wealth",  emoji: "💰" },
+  { key: "growth",    label: "Career Growth",      desc: "Skills, title, market position",     emoji: "📈" },
+  { key: "balance",   label: "Work-Life Balance",  desc: "Time, flexibility, wellbeing",       emoji: "⚖️" },
+  { key: "roots",     label: "Roots & Community",  desc: "Family, culture, belonging",         emoji: "🌱" },
+] as const;
+
 // ── Page ───────────────────────────────────────────────────────────────────
 
 export function Analyze() {
@@ -109,8 +118,15 @@ export function Analyze() {
   const [confidence, setConfidence] = useState(85);
   const [currency, setCurrency] = useState<CurrencyInfo>(DEFAULT_CURRENCY);
   const [alternativeText, setAlternativeText] = useState("");
+  const [valuesRank, setValuesRank] = useState<string[]>([]);
   // useRef holds the last-set currency code — no stale-closure risk
   const currencyCodeRef = useRef(DEFAULT_CURRENCY.code);
+
+  const toggleValue = (key: string) => {
+    setValuesRank((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+  };
 
   // Detect currency from the destination city (primary) or origin city (fallback)
   useEffect(() => {
@@ -139,7 +155,10 @@ export function Analyze() {
         confidence,
       },
       alternative_text: alternativeText,
-      values_rank: ["financial", "growth", "balance", "roots"],
+      values_rank: [
+        ...valuesRank,
+        ...["financial", "growth", "balance", "roots"].filter((k) => !valuesRank.includes(k)),
+      ],
     };
 
     // Persist persona so Advisor Hub can tailor suggestions
@@ -231,7 +250,48 @@ export function Analyze() {
                 ]}
               />
 
-              {/* Section 2 – Location */}
+              {/* Section 2 – Values */}
+              <SectionLabel>Your Values (tap in order of priority)</SectionLabel>
+
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-3">
+                  {VALUES.map(({ key, label, desc, emoji }) => {
+                    const rank = valuesRank.indexOf(key);
+                    const isRanked = rank !== -1;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => toggleValue(key)}
+                        className={`relative p-3 rounded-xl border text-left transition-all ${
+                          isRanked
+                            ? "border-primary bg-primary/5"
+                            : "border-border-mock bg-white hover:border-primary/40"
+                        }`}
+                      >
+                        {isRanked && (
+                          <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary text-white text-[10px] font-extrabold flex items-center justify-center">
+                            {rank + 1}
+                          </span>
+                        )}
+                        <div className="text-lg mb-1">{emoji}</div>
+                        <div className={`text-xs font-bold ${isRanked ? "text-primary" : "text-on-surface"}`}>{label}</div>
+                        <div className="text-[10px] text-on-surface-variant mt-0.5 leading-tight">{desc}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {valuesRank.length > 0 && valuesRank.length < 4 && (
+                  <p className="text-xs text-on-surface-variant">
+                    {4 - valuesRank.length} remaining — tap to rank, tap again to remove
+                  </p>
+                )}
+                {valuesRank.length === 4 && (
+                  <p className="text-xs text-primary font-semibold">All values ranked ✓</p>
+                )}
+              </div>
+
+              {/* Section 3 – Location */}
               <SectionLabel>Location & Assumptions</SectionLabel>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
