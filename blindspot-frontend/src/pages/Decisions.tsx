@@ -1,20 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getSessionId } from "../utils/session";
 import { Card } from "../components/ui/Card";
 import { StatusChip } from "../components/ui/StatusChip";
 import { Button } from "../components/ui/Button";
+import { useAuth } from "../contexts/AuthContext";
 
 export function Decisions() {
+  const { user, session } = useAuth();
   const [decisions, setDecisions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user) return;
     async function fetchDecisions() {
       try {
-        const sid = getSessionId();
-        const res = await fetch(`/api/decisions?session_id=${sid}`);
+        const headers: Record<string, string> = {};
+        if (session?.access_token) headers["Authorization"] = `Bearer ${session.access_token}`;
+        const res = await fetch(`/api/decisions?session_id=${user!.id}`, { headers });
         if (!res.ok) throw new Error("Failed to fetch decisions");
         const data = await res.json();
         setDecisions(data);
@@ -25,7 +28,7 @@ export function Decisions() {
       }
     }
     fetchDecisions();
-  }, []);
+  }, [user, session]);
 
   return (
     <div className="px-4 pt-2 pb-10 md:px-8 max-w-5xl mx-auto space-y-8">

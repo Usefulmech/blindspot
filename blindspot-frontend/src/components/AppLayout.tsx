@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink, Outlet, useMatch } from "react-router-dom";
-import { getUserName } from "../utils/session";
+import { useAuth } from "../contexts/AuthContext";
 
 // ── Brand icons ────────────────────────────────────────────────────────────
 
@@ -131,26 +131,30 @@ function BottomNavItem({
   );
 }
 
-// ── Avatar badge — derives initials from stored name ────────────────────────
+// ── Avatar + sign-out ─────────────────────────────────────────────────────
 
 function AvatarBadge() {
-  const name = getUserName();
-  const initials = name
-    ? name
-        .split(" ")
-        .map((w) => w[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-    : "BS";
+  const { user, signOut } = useAuth();
+  const email = user?.email ?? "";
+  const initials = email ? email.slice(0, 2).toUpperCase() : "BS";
+
   return (
-    <div
-      className="w-9 h-9 rounded-full bg-secondary-container
-                 flex items-center justify-center shrink-0
-                 text-xs font-bold text-on-secondary-container select-none"
-      title={name || "BlindSpot"}
-    >
-      {initials}
+    <div className="flex items-center gap-2">
+      <div
+        className="w-9 h-9 rounded-full bg-secondary-container
+                   flex items-center justify-center shrink-0
+                   text-xs font-bold text-on-secondary-container select-none"
+        title={email}
+      >
+        {initials}
+      </div>
+      <button
+        onClick={signOut}
+        className="hidden md:block text-xs font-semibold text-on-surface-variant hover:text-risk transition-colors"
+        title="Sign out"
+      >
+        Sign out
+      </button>
     </div>
   );
 }

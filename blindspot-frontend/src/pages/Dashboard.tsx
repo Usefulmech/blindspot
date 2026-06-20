@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { fetchSSE } from "../utils/sse";
 import { Button } from "../components/ui/Button";
+import { useAuth } from "../contexts/AuthContext";
 
 const CACHE_KEY = "blindspot_last_analysis";
 
@@ -16,6 +17,7 @@ function loadFromCache(): { payload: any; turns: any[]; result: any } | null {
 export function Dashboard() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { session } = useAuth();
 
   // Use submitted payload OR fall back to the last cached analysis
   const livePayload = location.state?.analyzePayload;
@@ -42,7 +44,10 @@ export function Dashboard() {
           "/api/analyze",
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+            },
             body: JSON.stringify(payload),
           },
           (event, data) => {

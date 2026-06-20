@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
     "country-to-currency": "^3.0.1",
     "currency-symbol-map": "^5.1.0",
     "framer-motion": "^12.40.0",

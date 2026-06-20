@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getSessionId, setUserPersona, type Persona } from "../utils/session";
+import { setUserPersona, type Persona } from "../utils/session";
+import { useAuth } from "../contexts/AuthContext";
 import {
   getCurrencyForLocation,
   DEFAULT_CURRENCY,
@@ -97,6 +98,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export function Analyze() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [decisionText, setDecisionText] = useState("");
   const [persona, setPersona] = useState("professional");
@@ -125,7 +127,7 @@ export function Analyze() {
     e.preventDefault();
 
     const payload = {
-      session_id: getSessionId(),
+      session_id: user?.id ?? crypto.randomUUID(),
       decision_text: decisionText,
       user_persona: persona,
       origin_city: originCity || undefined,
