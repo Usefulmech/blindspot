@@ -138,8 +138,23 @@ export function Report() {
         </div>
       </div>
       
-      <div className="pt-8 text-center space-y-4">
-        <Button onClick={() => navigate("/")}>Create Your Own Analysis</Button>
+      <div className="pt-8 text-center space-y-4 print:hidden">
+        <div className="flex flex-col sm:flex-row justify-center gap-3">
+          <Button 
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href);
+              alert("Report link copied to clipboard!");
+            }}
+          >
+            Copy Link
+          </Button>
+          <Button variant="secondary" onClick={() => window.print()}>
+            Save as PDF
+          </Button>
+        </div>
+        <div className="pt-2">
+          <Button variant="secondary" onClick={() => navigate("/")}>Create Your Own Analysis</Button>
+        </div>
       </div>
     </div>
   );
