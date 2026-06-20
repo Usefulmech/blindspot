@@ -22,6 +22,7 @@ export function Dashboard() {
   const cache = !livePayload ? loadFromCache() : null;
   const payload = livePayload ?? cache?.payload ?? null;
 
+  const turnsRef = useRef<{ speaker: "atlas" | "vera" | "axis"; text: string }[]>(cache?.turns ?? []);
   const [turns, setTurns] = useState<{ speaker: "atlas" | "vera" | "axis"; text: string }[]>(cache?.turns ?? []);
   const [result, setResult] = useState<any>(cache?.result ?? null);
   const [isProcessing, setIsProcessing] = useState(!cache?.result && !!livePayload);
@@ -46,23 +47,23 @@ export function Dashboard() {
           },
           (event, data) => {
             if (event === "atlas" || event === "vera" || event === "axis") {
-              setTurns((prev) => {
-                const last = prev[prev.length - 1];
-                if (last && last.speaker === event) {
-                  // Same speaker — append to current card
-                  return [...prev.slice(0, -1), { ...last, text: last.text + data + " " }];
-                }
-                // New speaker — start a new card
-                return [...prev, { speaker: event as "atlas" | "vera" | "axis", text: data + " " }];
-              });
+              const speaker = event as "atlas" | "vera" | "axis";
+              const current = turnsRef.current;
+              const last = current[current.length - 1];
+              if (last && last.speaker === speaker) {
+                turnsRef.current = [
+                  ...current.slice(0, -1),
+                  { ...last, text: last.text + data + " " },
+                ];
+              } else {
+                turnsRef.current = [...current, { speaker, text: data + " " }];
+              }
+              setTurns([...turnsRef.current]);
             } else if (event === "done") {
               const parsed = JSON.parse(data);
               setResult(parsed);
               setIsProcessing(false);
-              setTurns((currentTurns) => {
-                saveToCache(livePayload, currentTurns, parsed);
-                return currentTurns;
-              });
+              saveToCache(livePayload, turnsRef.current, parsed);
             }
           },
         );
