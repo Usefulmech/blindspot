@@ -3,21 +3,35 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { fetchSSE } from "../utils/sse";
 import { Button } from "../components/ui/Button";
 
+const CACHE_KEY = "blindspot_last_analysis";
+
+function saveToCache(payload: any, turns: any[], result: any) {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ payload, turns, result })); } catch {}
+}
+
+function loadFromCache(): { payload: any; turns: any[]; result: any } | null {
+  try { const raw = localStorage.getItem(CACHE_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
+}
+
 export function Dashboard() {
   const location = useLocation();
   const navigate = useNavigate();
-  const payload = location.state?.analyzePayload;
 
-  const [turns, setTurns] = useState<{ speaker: "atlas" | "vera" | "axis"; text: string }[]>([]);
-  const [result, setResult] = useState<any>(null);
-  const [isProcessing, setIsProcessing] = useState(true);
+  // Use submitted payload OR fall back to the last cached analysis
+  const livePayload = location.state?.analyzePayload;
+  const cache = !livePayload ? loadFromCache() : null;
+  const payload = livePayload ?? cache?.payload ?? null;
+
+  const [turns, setTurns] = useState<{ speaker: "atlas" | "vera" | "axis"; text: string }[]>(cache?.turns ?? []);
+  const [result, setResult] = useState<any>(cache?.result ?? null);
+  const [isProcessing, setIsProcessing] = useState(!cache?.result && !!livePayload);
   const [error, setError] = useState<string | null>(null);
   const [reconcileProgress, setReconcileProgress] = useState(15);
   const [activeTimelineTab, setActiveTimelineTab] = useState<"taken" | "not_taken">("taken");
   const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (!payload) return; // show empty state below, no redirect
+    if (!livePayload) return; // nothing new to fetch — showing cached or empty state
     if (hasFetched.current) return;
     hasFetched.current = true;
 
@@ -42,8 +56,13 @@ export function Dashboard() {
                 return [...prev, { speaker: event as "atlas" | "vera" | "axis", text: data + " " }];
               });
             } else if (event === "done") {
-              setResult(JSON.parse(data));
+              const parsed = JSON.parse(data);
+              setResult(parsed);
               setIsProcessing(false);
+              setTurns((currentTurns) => {
+                saveToCache(livePayload, currentTurns, parsed);
+                return currentTurns;
+              });
             }
           },
         );
@@ -66,7 +85,7 @@ export function Dashboard() {
     return () => clearInterval(interval);
   }, [isProcessing]);
 
-  // ── Empty state when no analysis has been submitted yet ──────────────────
+  // ── Empty state: no live payload AND nothing cached ──────────────────────
   if (!payload) {
     return (
       <div className="px-4 py-8 md:px-8 md:py-10 max-w-5xl mx-auto space-y-6">
