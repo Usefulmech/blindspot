@@ -8,9 +8,7 @@ export function Dashboard() {
   const navigate = useNavigate();
   const payload = location.state?.analyzePayload;
 
-  const [atlasText, setAtlasText] = useState("");
-  const [veraText, setVeraText] = useState("");
-  const [axisText, setAxisText] = useState("");
+  const [turns, setTurns] = useState<{ speaker: "atlas" | "vera" | "axis"; text: string }[]>([]);
   const [result, setResult] = useState<any>(null);
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,10 +31,17 @@ export function Dashboard() {
             body: JSON.stringify(payload),
           },
           (event, data) => {
-            if (event === "atlas") setAtlasText((prev) => prev + data + " ");
-            else if (event === "vera") setVeraText((prev) => prev + data + " ");
-            else if (event === "axis") setAxisText((prev) => prev + data + " ");
-            else if (event === "done") {
+            if (event === "atlas" || event === "vera" || event === "axis") {
+              setTurns((prev) => {
+                const last = prev[prev.length - 1];
+                if (last && last.speaker === event) {
+                  // Same speaker — append to current card
+                  return [...prev.slice(0, -1), { ...last, text: last.text + data + " " }];
+                }
+                // New speaker — start a new card
+                return [...prev, { speaker: event as "atlas" | "vera" | "axis", text: data + " " }];
+              });
+            } else if (event === "done") {
               setResult(JSON.parse(data));
               setIsProcessing(false);
             }
@@ -141,87 +146,72 @@ export function Dashboard() {
         </div>
       )}
 
-      {/* Live agent debate stream panel */}
-      {isProcessing && (
-        <div className="space-y-5">
-          <div className="flex gap-1.5">
-            <div className="h-1 flex-1 rounded bg-primary"></div>
-            <div className="h-1 flex-1 rounded bg-primary"></div>
-            <div className="h-1 flex-1 rounded bg-primary"></div>
-            <div className={`h-1 flex-1 rounded transition-all duration-300 ${reconcileProgress > 50 ? 'bg-primary' : 'bg-surface-dim'}`}></div>
-            <div className={`h-1 flex-1 rounded transition-all duration-300 ${reconcileProgress > 80 ? 'bg-primary' : 'bg-surface-dim'}`}></div>
-          </div>
+      {/* Live debate — each turn in its own card */}
+      {(isProcessing || turns.length > 0) && (
+        <div className="space-y-3">
+          {/* Progress bar */}
+          {isProcessing && (
+            <div className="flex gap-1.5 mb-4">
+              {[0,1,2,3,4].map(i => (
+                <div key={i} className={`h-1 flex-1 rounded transition-all duration-300 ${reconcileProgress > i * 20 ? 'bg-primary' : 'bg-surface-dim'}`} />
+              ))}
+            </div>
+          )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-border-mock bg-white rounded-xl p-4">
-            {/* Agent Atlas */}
-            <div className="space-y-2 md:border-r border-border-mock md:pr-4 pb-4 md:pb-0 border-b md:border-b-0">
-              <div className="flex items-center gap-2">
-                <div className="w-[26px] h-[26px] rounded-full bg-agent-atlas flex items-center justify-center text-[11px] font-extrabold text-white">
-                  A
+          {turns.length === 0 && isProcessing && (
+            <p className="text-xs text-on-surface-variant italic text-center py-4">Agents are preparing their arguments...</p>
+          )}
+
+          {turns.map((turn, idx) => {
+            const isAtlas = turn.speaker === "atlas";
+            const isAxis  = turn.speaker === "axis";
+            const isLast  = idx === turns.length - 1;
+
+            if (isAxis) {
+              return (
+                <div key={idx} className="bg-axis-navy rounded-xl p-4 text-white space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-[26px] h-[26px] rounded-full bg-axis-gold flex items-center justify-center text-xs font-extrabold text-axis-navy">Σ</div>
+                    <span className="font-extrabold text-xs text-axis-gold uppercase tracking-wider">AXIS — The Judge</span>
+                  </div>
+                  <p className="text-xs text-white/90 leading-relaxed font-medium">
+                    {turn.text}
+                    {isLast && isProcessing && <span className="inline-block w-2 h-3.5 bg-white animate-pulse ml-1 align-middle" />}
+                  </p>
+                  {isProcessing && (
+                    <>
+                      <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full bg-axis-gold rounded-full transition-all duration-300" style={{ width: `${reconcileProgress}%` }} />
+                      </div>
+                      <div className="text-[10px] font-semibold text-white/80">{reconcileProgress}% — computing Blindspot Score™</div>
+                    </>
+                  )}
                 </div>
-                <span className="font-extrabold text-xs text-agent-atlas tracking-wide">ATLAS — Optimist</span>
-              </div>
-              <p className="text-xs text-on-surface leading-relaxed font-medium">
-                {atlasText ? (
-                  <>
-                    {atlasText}
-                    <span className="inline-block w-2 h-3.5 bg-on-surface animate-pulse ml-1 align-middle" />
-                  </>
-                ) : (
-                  <span className="text-on-surface-variant italic">Waiting for Atlas to structure analysis...</span>
-                )}
-              </p>
-            </div>
+              );
+            }
 
-            {/* Agent Vera */}
-            <div className="space-y-2 md:pl-2">
-              <div className="flex items-center gap-2">
-                <div className="w-[26px] h-[26px] rounded-full bg-agent-vera flex items-center justify-center text-[11px] font-extrabold text-white">
-                  V
-                </div>
-                <span className="font-extrabold text-xs text-agent-vera tracking-wide">VERA — Realist</span>
-              </div>
-              <p className="text-xs text-white leading-relaxed font-medium">
-                {veraText ? (
-                  <span className="text-on-surface">
-                    {veraText}
-                    <span className="inline-block w-2 h-3.5 bg-on-surface animate-pulse ml-1 align-middle" />
-                  </span>
-                ) : (
-                  <span className="text-on-surface-variant italic">Waiting for Vera to reconcile...</span>
-                )}
-              </p>
-            </div>
-          </div>
-
-          {/* Reconciler panel */}
-          <div className="bg-axis-navy rounded-xl p-4 text-white space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-[26px] h-[26px] rounded-full bg-axis-gold flex items-center justify-center text-xs font-extrabold text-axis-navy">
-                Σ
-              </div>
-              <span className="font-extrabold text-xs text-axis-gold uppercase tracking-wider">AXIS — The Judge</span>
-            </div>
-            <p className="text-xs text-white/90 leading-relaxed font-medium">
-              {axisText ? (
-                <>
-                  {axisText}
-                  <span className="inline-block w-2 h-3.5 bg-white animate-pulse ml-1 align-middle" />
-                </>
-              ) : (
-                <span className="text-white/50 italic">Waiting for AXIS verdict...</span>
-              )}
-            </p>
-            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+            return (
               <div
-                className="h-full bg-axis-gold rounded-full transition-all duration-300"
-                style={{ width: `${reconcileProgress}%` }}
-              />
-            </div>
-            <div className="text-[10px] font-semibold text-white/80">
-              {reconcileProgress}% — computing Blindspot Score™
-            </div>
-          </div>
+                key={idx}
+                className={`flex ${isAtlas ? "justify-start" : "justify-end"}`}
+              >
+                <div className={`max-w-[85%] rounded-xl p-4 space-y-2 border shadow-sm ${isAtlas ? "bg-white border-border-mock" : "bg-agent-vera/10 border-agent-vera/20"}`}>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] font-extrabold text-white ${isAtlas ? "bg-agent-atlas" : "bg-agent-vera"}`}>
+                      {isAtlas ? "A" : "V"}
+                    </div>
+                    <span className={`font-extrabold text-xs tracking-wide ${isAtlas ? "text-agent-atlas" : "text-agent-vera"}`}>
+                      {isAtlas ? "ATLAS — Optimist" : "VERA — Realist"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-on-surface leading-relaxed font-medium">
+                    {turn.text}
+                    {isLast && isProcessing && <span className="inline-block w-2 h-3.5 bg-on-surface animate-pulse ml-1 align-middle" />}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
