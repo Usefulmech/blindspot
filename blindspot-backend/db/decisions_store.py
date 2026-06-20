@@ -44,6 +44,8 @@ def save_decision(body, done_payload: dict) -> str | None:
         return None
 
     except Exception:
+        import traceback
+        print("❌ save_decision failed:", traceback.format_exc())
         return None
 
 
