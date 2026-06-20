@@ -128,6 +128,29 @@ async def _stub_stream(body: AnalyzeRequest):
         "provider_used": "stub",
     }
 
+    import uuid
+    from db.supabase_client import get_supabase_client
+    
+    share_uuid = str(uuid.uuid4())
+    done_payload["share_uuid"] = share_uuid
+    
+    try:
+        db = get_supabase_client()
+        record = {
+            "session_id": body.session_id,
+            "share_uuid": share_uuid,
+            "decision_text": body.decision_text,
+            "origin_city": body.origin_city,
+            "destination_city": body.destination_city,
+            "score": done_payload["score"],
+            "grade": done_payload["grade"],
+            "advisory_flag": done_payload["advisory_action"]["flagged"],
+            "full_payload": done_payload
+        }
+        db.table("decisions").insert(record).execute()
+    except Exception as e:
+        print(f"Failed to save decision to Supabase: {e}")
+
     yield {"event": "done", "data": json.dumps(done_payload)}
 
 

@@ -163,7 +163,16 @@ export function Advisor() {
 
                 {/* CTA */}
                 <div className="shrink-0 self-start sm:pt-1">
-                  <Button variant={a.ctaVariant} size="sm" onClick={() => alert(`Connecting you to ${a.title}...`)}>
+                  <Button 
+                    variant={a.ctaVariant} 
+                    size="sm" 
+                    onClick={() => {
+                      const subject = encodeURIComponent(`Inquiry: ${a.title}`);
+                      const body = encodeURIComponent(`Hi there,\n\nI am reaching out from BlindSpot to connect with the ${a.title} regarding my recent analysis.\n\nPlease let me know your availability.\n\nThanks!`);
+                      // Using a direct Gmail compose link ensures it opens reliably in the browser for a demo
+                      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=advisors@blindspot-app.com&su=${subject}&body=${body}`, '_blank');
+                    }}
+                  >
                     {a.cta}
                   </Button>
                 </div>
