@@ -39,6 +39,7 @@ export function Dashboard() {
             else if (event === "done") {
               setResult(JSON.parse(data));
               setIsProcessing(false);
+              setReconcileProgress(100);
             }
           },
         );
@@ -142,7 +143,7 @@ export function Dashboard() {
       )}
 
       {/* Live agent debate stream panel */}
-      {isProcessing && (
+      {(isProcessing || atlasText) && (
         <div className="space-y-5">
           <div className="flex gap-1.5">
             <div className="h-1 flex-1 rounded bg-primary"></div>
@@ -219,7 +220,7 @@ export function Dashboard() {
               />
             </div>
             <div className="text-[10px] font-semibold text-white/80">
-              {reconcileProgress}% — computing Blindspot Score™
+              {isProcessing ? `${reconcileProgress}% — computing Blindspot Score™` : `100% — Analysis Complete`}
             </div>
           </div>
         </div>
@@ -297,14 +298,6 @@ export function Dashboard() {
                   <p className="text-xs text-on-surface-variant leading-relaxed">
                     {bs.detail}
                   </p>
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-orange-50 text-caution border border-orange-100">
-                      Unmitigated Gap
-                    </span>
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-50 text-on-surface-variant border border-slate-100">
-                      {result.provider_used ? "AI Simulated" : "Verified Data"}
-                    </span>
-                  </div>
                   <div className="text-[9.5px] text-outline font-semibold">
                     Source: {bs.source}
                   </div>
